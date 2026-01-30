@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainLayout from './components/Layout/MainLayout';
 import LandingPage from './pages/LandingPage';
 import ItemOne from './pages/ItemOne';
-import LotteryAnalysis from './pages/analysis';
+import LotteryAnalysis from './pages/Analysis';
 import TemporalSequenceAnalyzer from './pages/AdAnalysis';
 import ItemPut from './pages/ItemPut';
 import Chart from './pages/Chat';
