@@ -1,385 +1,110 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, ScatterChart, Scatter, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, Clock, BarChart3, Target, Upload, Play, Settings } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { BarChart3, TrendingUp, Clock, Target, TrendingDown, Settings, Upload, Play, Repeat, X, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { datamod } from '../constant/data';
+import { useLotteryAnalysis, analyzeLotteryData } from '../hooks/useLotteryAnalysis';
+
+// Components
+import OverviewTab from '../components/AnalysisTabs/OverviewTab';
+import MarkovTab from '../components/AnalysisTabs/MarkovTab';
+import GapTab from '../components/AnalysisTabs/GapTab';
+import PatternTab from '../components/AnalysisTabs/PatternTab';
+import ChaseTab from '../components/AnalysisTabs/ChaseTab';
+import PredictionTab from '../components/AnalysisTabs/PredictionTab';
+
+
+// Helper functions
+const generateSampleData = (weeks = 52, settings = { numberRange: { min: 1, max: 49 } }) => {
+    const sampleData = [];
+    const hotNumbers = [7, 12, 23, 35, 42];
+    const coldNumbers = [1, 13, 26, 39, 48];
+
+    for (let week = 1; week <= weeks; week++) {
+        const weekNumbers = [];
+        const numbersPerWeek = 5;
+
+        while (weekNumbers.length < numbersPerWeek) {
+            let num;
+            if (Math.random() < 0.3 && hotNumbers.some(h => !weekNumbers.includes(h))) {
+                num = hotNumbers[Math.floor(Math.random() * hotNumbers.length)];
+            } else if (week > weeks * 0.7 && Math.random() < 0.2 && coldNumbers.some(c => !weekNumbers.includes(c))) {
+                num = coldNumbers[Math.floor(Math.random() * coldNumbers.length)];
+            } else {
+                num = Math.floor(Math.random() * (settings.numberRange.max - settings.numberRange.min + 1)) + settings.numberRange.min;
+            }
+
+            if (!weekNumbers.includes(num)) {
+                weekNumbers.push(num);
+            }
+        }
+
+        weekNumbers.sort((a, b) => a - b);
+        sampleData.push({
+            week,
+            numbers: weekNumbers,
+            date: new Date(2024, 0, week * 7).toISOString().split('T')[0]
+        });
+    }
+    return sampleData;
+};
+
+const convertDatamodToExpectedFormat = (dm) => {
+    if (!dm) return [];
+    return dm.map((weekNumbers, index) => ({
+        week: index + 1,
+        numbers: [...weekNumbers].sort((a, b) => a - b),
+        date: new Date(2024, 0, (index + 1) * 7).toISOString().split('T')[0]
+    }));
+};
 
 const TemporalSequenceAnalyzer = () => {
-    const [data, setData] = useState([])
+    const [data, setData] = useState(() => {
+        return datamod && datamod.length > 0
+            ? convertDatamodToExpectedFormat(datamod)
+            : generateSampleData(52);
+    });
     const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [analysis, setAnalysis] = useState(null);
     const [activeTab, setActiveTab] = useState('overview');
     const [settings, setSettings] = useState({
         numberRange: { min: 1, max: 49 },
         recentWeeksWeight: 3,
         overdueThreshold: 1.5,
         hotThreshold: 0.3,
-        coldThreshold: 0.1
+        coldThreshold: 0.1,
     });
+    const [selectedDraw, setSelectedDraw] = useState(null);
+    const [historicalPrediction, setHistoricalPrediction] = useState(null);
 
-    // Generate sample large dataset
-    const generateSampleData = (weeks = 52) => {
-        const sampleData = [];
-        const frequencyBias = {};
+    // Hook for analysis
+    const analysis = useLotteryAnalysis(data, settings);
 
-        // Create some numbers that appear more frequently (hot numbers)
-        const hotNumbers = [7, 12, 23, 35, 42];
-        const coldNumbers = [1, 13, 26, 39, 48];
-
-        for (let week = 1; week <= weeks; week++) {
-            const weekNumbers = [];
-            const numbersPerWeek = 5;
-
-            while (weekNumbers.length < numbersPerWeek) {
-                let num;
-
-                // Bias towards hot numbers early, cold numbers later
-                if (Math.random() < 0.3 && hotNumbers.some(h => !weekNumbers.includes(h))) {
-                    num = hotNumbers[Math.floor(Math.random() * hotNumbers.length)];
-                } else if (week > weeks * 0.7 && Math.random() < 0.2 && coldNumbers.some(c => !weekNumbers.includes(c))) {
-                    num = coldNumbers[Math.floor(Math.random() * coldNumbers.length)];
-                } else {
-                    num = Math.floor(Math.random() * (settings.numberRange.max - settings.numberRange.min + 1)) + settings.numberRange.min;
-                }
-
-                if (!weekNumbers.includes(num)) {
-                    weekNumbers.push(num);
-                }
-            }
-
-            weekNumbers.sort((a, b) => a - b);
-            sampleData.push({
-                week,
-                numbers: weekNumbers,
-                date: new Date(2024, 0, week * 7).toISOString().split('T')[0]
-            });
-        }
-        // console.log(sampleData)
-        return sampleData;
-    };
-
-    // Initialize with sample data
-    const convertDatamodToExpectedFormat = (datamod) => {
-        return datamod.map((weekNumbers, index) => ({
-            week: index + 1,
-            numbers: weekNumbers.sort((a, b) => a - b), // Sort numbers in ascending order
-            date: new Date(2024, 0, (index + 1) * 7).toISOString().split('T')[0]
-        }));
-    };
-
-    // Usage in your useEffect:
-    useEffect(() => {
-        const convertedData = datamod && datamod.length > 0
-            ? convertDatamodToExpectedFormat(datamod)
-            : generateSampleData(52);
-
-        setData(convertedData);
-    }, []);
-
-    // Robust temporal analysis engine
-    const analyzeTemporalSequence = useMemo(() => {
-        if (data.length < 2) return null;
-
-        const analyzer = {
-            // Temporal Markov Chain Analysis
-            buildMarkovTransitions: () => {
-                const transitions = {};
-                const persistenceStats = {};
-
-                for (let i = 0; i < data.length - 1; i++) {
-                    const currentWeek = data[i].numbers;
-                    const nextWeek = data[i + 1].numbers;
-
-                    currentWeek.forEach(num => {
-                        if (!transitions[num]) {
-                            transitions[num] = { appears: 0, total: 0, probability: 0 };
-                        }
-                        transitions[num].total++;
-
-                        if (nextWeek.includes(num)) {
-                            transitions[num].appears++;
-                        }
-                    });
-                }
-
-                // Calculate probabilities
-                Object.keys(transitions).forEach(num => {
-                    transitions[num].probability = transitions[num].appears / transitions[num].total;
-                });
-
-                return transitions;
-            },
-
-            // Gap Analysis with statistical significance
-            analyzeGaps: () => {
-                const numberHistory = {};
-                const currentWeek = data.length;
-
-                // Build appearance history
-                data.forEach((week, idx) => {
-                    week.numbers.forEach(num => {
-                        if (!numberHistory[num]) {
-                            numberHistory[num] = [];
-                        }
-                        numberHistory[num].push(idx + 1);
-                    });
-                });
-
-                const gapAnalysis = {};
-
-                // Analyze gaps for each number
-                for (let num = settings.numberRange.min; num <= settings.numberRange.max; num++) {
-                    const appearances = numberHistory[num] || [];
-
-                    if (appearances.length === 0) {
-                        gapAnalysis[num] = {
-                            status: 'never_appeared',
-                            weeksSinceLastAppearance: Infinity,
-                            avgGap: null,
-                            dueScore: Infinity,
-                            frequency: 0
-                        };
-                    } else {
-                        const lastAppearance = appearances[appearances.length - 1];
-                        const weeksSinceLastAppearance = currentWeek - lastAppearance;
-
-                        if (appearances.length > 1) {
-                            const gaps = [];
-                            for (let i = 1; i < appearances.length; i++) {
-                                gaps.push(appearances[i] - appearances[i - 1]);
-                            }
-
-                            const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
-                            const gapVariance = gaps.reduce((sum, gap) => sum + Math.pow(gap - avgGap, 2), 0) / gaps.length;
-                            const gapStdDev = Math.sqrt(gapVariance);
-
-                            gapAnalysis[num] = {
-                                status: weeksSinceLastAppearance >= avgGap * settings.overdueThreshold ? 'overdue' : 'normal',
-                                weeksSinceLastAppearance,
-                                avgGap,
-                                gapStdDev,
-                                dueScore: weeksSinceLastAppearance / avgGap,
-                                frequency: appearances.length / data.length,
-                                appearances: appearances.length
-                            };
-                        } else {
-                            gapAnalysis[num] = {
-                                status: weeksSinceLastAppearance >= 3 ? 'potentially_due' : 'normal',
-                                weeksSinceLastAppearance,
-                                avgGap: null,
-                                dueScore: weeksSinceLastAppearance / 3,
-                                frequency: 1 / data.length,
-                                appearances: 1
-                            };
-                        }
-                    }
-                }
-
-                return gapAnalysis;
-            },
-
-            // Pattern Recognition with trend analysis
-            analyzePatterns: () => {
-                const patterns = {
-                    frequency: {},
-                    recentTrend: {},
-                    cyclical: {},
-                    momentum: {}
-                };
-
-                // Calculate frequency and recent trends
-                data.forEach((week, idx) => {
-                    const recentWeight = idx >= data.length - settings.recentWeeksWeight ? 2 : 1;
-
-                    week.numbers.forEach(num => {
-                        patterns.frequency[num] = (patterns.frequency[num] || 0) + 1;
-                        patterns.recentTrend[num] = (patterns.recentTrend[num] || 0) + recentWeight;
-                    });
-                });
-
-                // Calculate momentum (recent vs historical frequency)
-                Object.keys(patterns.frequency).forEach(num => {
-                    const totalFreq = patterns.frequency[num] / data.length;
-                    const recentFreq = patterns.recentTrend[num] / (settings.recentWeeksWeight * 2 + (data.length - settings.recentWeeksWeight));
-                    patterns.momentum[num] = recentFreq - totalFreq;
-                });
-
-                // Classify numbers
-                const classification = {
-                    hot: [],
-                    cold: [],
-                    trending: [],
-                    declining: []
-                };
-
-                Object.keys(patterns.frequency).forEach(num => {
-                    const freq = patterns.frequency[num] / data.length;
-                    const momentum = patterns.momentum[num];
-
-                    if (freq >= settings.hotThreshold) {
-                        classification.hot.push(parseInt(num));
-                    } else if (freq <= settings.coldThreshold) {
-                        classification.cold.push(parseInt(num));
-                    }
-
-                    if (momentum > 0.1) {
-                        classification.trending.push(parseInt(num));
-                    } else if (momentum < -0.1) {
-                        classification.declining.push(parseInt(num));
-                    }
-                });
-
-                return { patterns, classification };
-            },
-
-            // Prediction engine
-            generatePredictions: (markov, gaps, patterns) => {
-                const predictions = {
-                    markov: [],
-                    gaps: [],
-                    patterns: [],
-                    ensemble: []
-                };
-
-                // Markov-based predictions
-                const lastWeek = data[data.length - 1].numbers;
-                lastWeek.forEach(num => {
-                    const transition = markov[num];
-                    if (transition && transition.probability > 0.3) {
-                        predictions.markov.push({
-                            number: num,
-                            probability: transition.probability,
-                            confidence: transition.total >= 5 ? 'high' : 'medium'
-                        });
-                    }
-                });
-
-                // Gap-based predictions
-                Object.entries(gaps).forEach(([num, data]) => {
-                    if (data.dueScore > settings.overdueThreshold && data.frequency > 0.05) {
-                        predictions.gaps.push({
-                            number: parseInt(num),
-                            dueScore: data.dueScore,
-                            confidence: data.appearances >= 3 ? 'high' : 'medium'
-                        });
-                    }
-                });
-
-                // Pattern-based predictions
-                patterns.classification.trending.forEach(num => {
-                    predictions.patterns.push({
-                        number: num,
-                        momentum: patterns.patterns.momentum[num],
-                        confidence: 'medium'
-                    });
-                });
-
-                // Ensemble prediction (combine all methods)
-                const ensembleScores = {};
-
-                predictions.markov.forEach(p => {
-                    ensembleScores[p.number] = (ensembleScores[p.number] || 0) + p.probability * 0.4;
-                });
-
-                predictions.gaps.forEach(p => {
-                    ensembleScores[p.number] = (ensembleScores[p.number] || 0) + Math.min(p.dueScore / 2, 0.5) * 0.3;
-                });
-
-                predictions.patterns.forEach(p => {
-                    ensembleScores[p.number] = (ensembleScores[p.number] || 0) + Math.max(p.momentum, 0) * 0.3;
-                });
-
-                predictions.ensemble = Object.entries(ensembleScores)
-                    .sort(([, a], [, b]) => b - a)
-                    .slice(0, 10)
-                    .map(([num, score]) => ({
-                        number: parseInt(num),
-                        score: score,
-                        confidence: score > 0.3 ? 'high' : score > 0.15 ? 'medium' : 'low'
-                    }));
-
-                return predictions;
-            }
-        };
-
-        // Run analysis
-        const markovTransitions = analyzer.buildMarkovTransitions();
-        const gapAnalysis = analyzer.analyzeGaps();
-        const patternAnalysis = analyzer.analyzePatterns();
-        const predictions = analyzer.generatePredictions(markovTransitions, gapAnalysis, patternAnalysis);
-
-        return {
-            markov: markovTransitions,
-            gaps: gapAnalysis,
-            patterns: patternAnalysis,
-            predictions,
-            metadata: {
-                totalWeeks: data.length,
-                totalNumbers: Object.keys(markovTransitions).length,
-                analysisDate: new Date().toISOString()
-            }
-        };
-    }, [data, settings]);
-
-    // Analyze data
     const runAnalysis = () => {
         setIsAnalyzing(true);
         setTimeout(() => {
-            setAnalysis(analyzeTemporalSequence);
             setIsAnalyzing(false);
-        }, 500);
+            // In a real app, we might trigger a re-fetch here
+        }, 800);
     };
 
-    // Generate new sample data
     const generateNewData = () => {
         const newData = generateSampleData(Math.floor(Math.random() * 100) + 20);
-        console.log(newData)
         setData(newData);
-        setAnalysis(null);
     };
 
-    // Prepare chart data
-    const prepareChartData = () => {
-        if (!analysis) return {};
+    const handleDrawSelect = (draw) => {
+        // Slice data UP TO the selected draw (exclusive of the draw itself for prediction)
+        // actually, we want to predict FOR this draw, so we use data BEFORE it.
+        const drawIndex = data.findIndex(d => d.week === draw.week);
+        if (drawIndex <= 10) {
+            alert("Not enough historical data to generate a prediction for this week.");
+            return;
+        }
 
-        // Frequency over time
-        const frequencyData = [];
-        const numberFreq = {};
+        const pastData = data.slice(0, drawIndex);
+        const prediction = analyzeLotteryData(pastData, settings);
 
-        data.forEach((week, idx) => {
-            week.numbers.forEach(num => {
-                numberFreq[num] = (numberFreq[num] || 0) + 1;
-            });
-
-            if (idx % 4 === 0) { // Every 4 weeks
-                frequencyData.push({
-                    week: idx + 1,
-                    ...Object.fromEntries(Object.entries(numberFreq).slice(0, 5))
-                });
-            }
-        });
-
-        // Hot/Cold distribution
-        const hotColdData = [
-            { name: 'Hot Numbers', value: analysis.patterns.classification.hot.length, color: '#ff4444' },
-            { name: 'Cold Numbers', value: analysis.patterns.classification.cold.length, color: '#4444ff' },
-            { name: 'Trending', value: analysis.patterns.classification.trending.length, color: '#44ff44' },
-            { name: 'Declining', value: analysis.patterns.classification.declining.length, color: '#ffaa44' }
-        ];
-
-        // Gap analysis scatter
-        const gapScatterData = Object.entries(analysis.gaps)
-            .filter(([num, data]) => data.avgGap !== null)
-            .map(([num, data]) => ({
-                number: parseInt(num),
-                avgGap: data.avgGap,
-                dueScore: Math.min(data.dueScore, 5),
-                frequency: data.frequency
-            }));
-
-        return { frequencyData, hotColdData, gapScatterData };
+        setHistoricalPrediction(prediction);
+        setSelectedDraw(draw);
     };
-
-    const chartData = prepareChartData();
 
     const TabButton = ({ id, label, icon: Icon, active, onClick }) => (
         <button
@@ -394,608 +119,448 @@ const TemporalSequenceAnalyzer = () => {
         </button>
     );
 
-    return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6">
-            <div className="max-w-7xl mx-auto">
-                {/* Header */}
-                <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-                    <div className="flex items-center justify-between">
+    const HistoricalModal = () => {
+        if (!selectedDraw || !historicalPrediction) return null;
+
+        const { predictions, chasePairs } = historicalPrediction;
+        const actualNumbers = selectedDraw.numbers;
+
+        // Check Hits for existing strategies
+        const top5Bankers = predictions.bankers?.slice(0, 5) || [];
+        const top5Ensemble = predictions.ensemble?.slice(0, 5) || [];
+        // Use predictions.bankers for "Banker Pair (1-to-Play)" as it has the reliability metric
+        const topPair = predictions.bankers && predictions.bankers.length > 0 ? predictions.bankers[0] : null;
+
+        // Chase Strategy Logic
+
+        // TIME TRAVEL: Look up what we predicted BACK THEN
+        const historyLog = historicalPrediction.history?.historyLog || {};
+        const pastPrediction = historyLog[selectedDraw.week];
+
+        // 1. Chase Pairs
+        // Use historical record if available, otherwise fallback to current best (which might be anachronistic)
+        const bestChasePair = pastPrediction?.bestChasePair || (chasePairs && chasePairs.length > 0
+            ? [...chasePairs].sort((a, b) => b.readiness - a.readiness)[0]
+            : null);
+
+        let chaseOutcome = null;
+
+        if (bestChasePair) {
+            // Smart Harvest Window Lookup
+            // We trust the hook's "expectedIn" calculation which accounts for volatility
+            const expectedIn = bestChasePair.expectedIn || 1;
+            const dueInWeeks = expectedIn;
+
+            const currentDrawIndex = data.findIndex(d => d.week === selectedDraw.week);
+            if (currentDrawIndex !== -1) {
+                let winWeekOffset = -1;
+                // If it's a historical object, it has 'pair' property directly
+                const pairStr = bestChasePair.pair;
+                const targetNums = pairStr.split('-').map(Number);
+
+                // Check up to expected + buffer (e.g. 10 weeks beyond target)
+                for (let i = 1; i <= expectedIn + 10; i++) {
+                    const futureDraw = data[currentDrawIndex + i];
+                    if (!futureDraw) break;
+                    const hasP1 = futureDraw.numbers.includes(targetNums[0]);
+                    const hasP2 = futureDraw.numbers.includes(targetNums[1]);
+                    if (hasP1 && hasP2) { winWeekOffset = i; break; }
+                }
+                chaseOutcome = { hit: winWeekOffset !== -1, weeksToHit: winWeekOffset, dueIn: dueInWeeks };
+            }
+        }
+
+        // 2. Chase Singles
+        // Prioritize historical lookup
+        const diffChases = historicalPrediction.chaseSingles || [];
+        const bestChaseSingle = pastPrediction?.bestChaseSingle || (diffChases.length > 0 ? diffChases[0] : null);
+        let singleChaseOutcome = null;
+
+        if (bestChaseSingle) {
+            const expectedIn = bestChaseSingle.expectedIn || 1;
+
+            const currentDrawIndex = data.findIndex(d => d.week === selectedDraw.week);
+            if (currentDrawIndex !== -1) {
+                let winWeekOffset = -1;
+                for (let i = 1; i <= expectedIn + 5; i++) { // Check window + buffer
+                    const futureDraw = data[currentDrawIndex + i];
+                    if (!futureDraw) break;
+                    if (futureDraw.numbers.includes(bestChaseSingle.number)) {
+                        winWeekOffset = i;
+                        break;
+                    }
+                }
+                singleChaseOutcome = { hit: winWeekOffset !== -1, weeksToHit: winWeekOffset };
+            }
+        }
+
+        return (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm p-4">
+                <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200">
+                    <div className="sticky top-0 bg-white/90 backdrop-blur-md p-6 border-b border-gray-100 flex justify-between items-center z-10">
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                                Temporal Sequence Analysis Dashboard
-                            </h1>
-                            <p className="text-gray-600">
-                                Advanced analysis of temporal patterns with {data.length} weeks of data
-                            </p>
-                        </div>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={generateNewData}
-                                className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-                            >
-                                <Upload size={18} />
-                                New Data
-                            </button>
-                            <button
-                                onClick={runAnalysis}
-                                disabled={isAnalyzing}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
-                            >
-                                <Play size={18} />
-                                {isAnalyzing ? 'Analyzing...' : 'Analyze'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Navigation */}
-                <div className="bg-white rounded-xl shadow-lg p-4 mb-6">
-                    <div className="flex gap-2 overflow-x-auto">
-                        <TabButton
-                            id="overview"
-                            label="Overview"
-                            icon={BarChart3}
-                            active={activeTab === 'overview'}
-                            onClick={() => setActiveTab('overview')}
-                        />
-                        <TabButton
-                            id="markov"
-                            label="Markov Analysis"
-                            icon={TrendingUp}
-                            active={activeTab === 'markov'}
-                            onClick={() => setActiveTab('markov')}
-                        />
-                        <TabButton
-                            id="gaps"
-                            label="Gap Analysis"
-                            icon={Clock}
-                            active={activeTab === 'gaps'}
-                            onClick={() => setActiveTab('gaps')}
-                        />
-                        <TabButton
-                            id="patterns"
-                            label="Pattern Recognition"
-                            icon={Target}
-                            active={activeTab === 'patterns'}
-                            onClick={() => setActiveTab('patterns')}
-                        />
-                        <TabButton
-                            id="predictions"
-                            label="Predictions"
-                            icon={TrendingDown}
-                            active={activeTab === 'predictions'}
-                            onClick={() => setActiveTab('predictions')}
-                        />
-                        <TabButton
-                            id="settings"
-                            label="Settings"
-                            icon={Settings}
-                            active={activeTab === 'settings'}
-                            onClick={() => setActiveTab('settings')}
-                        />
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="space-y-6">
-                    {/* Overview Tab */}
-                    {activeTab === 'overview' && (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h3 className="text-xl font-semibold mb-4">Data Summary</h3>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-blue-50 rounded-lg p-4">
-                                        <div className="text-2xl font-bold text-blue-600">{data.length}</div>
-                                        <div className="text-sm text-gray-600">Total Weeks</div>
-                                    </div>
-                                    <div className="bg-green-50 rounded-lg p-4">
-                                        <div className="text-2xl font-bold text-green-600">
-                                            {analysis ? Object.keys(analysis.markov).length : 0}
-                                        </div>
-                                        <div className="text-sm text-gray-600">Unique Numbers</div>
-                                    </div>
-                                    <div className="bg-purple-50 rounded-lg p-4">
-                                        <div className="text-2xl font-bold text-purple-600">
-                                            {analysis ? analysis.patterns.classification.hot.length : 0}
-                                        </div>
-                                        <div className="text-sm text-gray-600">Hot Numbers</div>
-                                    </div>
-                                    <div className="bg-orange-50 rounded-lg p-4">
-                                        <div className="text-2xl font-bold text-orange-600">
-                                            {analysis ? analysis.patterns.classification.cold.length : 0}
-                                        </div>
-                                        <div className="text-sm text-gray-600">Cold Numbers</div>
-                                    </div>
+                            <div className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-1">Historical Review</div>
+                            <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">
+                                Week {selectedDraw.week}
+                                <div className="flex gap-1 ml-4">
+                                    <button
+                                        onClick={() => {
+                                            const currIdx = data.findIndex(d => d.week === selectedDraw.week);
+                                            if (currIdx > 0) setSelectedDraw(data[currIdx - 1]);
+                                        }}
+                                        disabled={data.findIndex(d => d.week === selectedDraw.week) <= 0}
+                                        className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-blue-600 disabled:opacity-30"
+                                        title="Previous Week"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const currIdx = data.findIndex(d => d.week === selectedDraw.week);
+                                            if (currIdx < data.length - 1) setSelectedDraw(data[currIdx + 1]);
+                                        }}
+                                        disabled={data.findIndex(d => d.week === selectedDraw.week) >= data.length - 1}
+                                        className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-blue-600 disabled:opacity-30"
+                                        title="Next Week"
+                                    >
+                                        <ChevronRight size={20} />
+                                    </button>
                                 </div>
-                            </div>
-
-                            {analysis && chartData.hotColdData && (
-                                <div className="bg-white rounded-xl shadow-lg p-6">
-                                    <h3 className="text-xl font-semibold mb-4">Number Classification</h3>
-                                    <ResponsiveContainer width="100%" height={300}>
-                                        <PieChart>
-                                            <Pie
-                                                data={chartData.hotColdData}
-                                                cx="50%"
-                                                cy="50%"
-                                                outerRadius={80}
-                                                fill="#8884d8"
-                                                dataKey="value"
-                                                label={({ name, value }) => `${name}: ${value}`}
-                                            >
-                                                {chartData.hotColdData.map((entry, index) => (
-                                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            )}
-
-                            {analysis && (
-                                <div className="bg-white rounded-xl shadow-lg p-6 lg:col-span-2">
-                                    <h3 className="text-xl font-semibold mb-4">Recent Data</h3>
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-sm">
-                                            <thead>
-                                                <tr className="border-b">
-                                                    <th className="text-left p-2">Week</th>
-                                                    <th className="text-left p-2">Date</th>
-                                                    <th className="text-left p-2">Numbers</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {data.slice(-10).reverse().map((week, idx) => (
-                                                    <tr key={idx} className="border-b hover:bg-gray-50">
-                                                        <td className="p-2 font-medium">{week.week}</td>
-                                                        <td className="p-2">{week.date}</td>
-                                                        <td className="p-2">
-                                                            <div className="flex gap-1">
-                                                                {week.numbers.map((num, i) => (
-                                                                    <span key={i} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                                                                        {num}
-                                                                    </span>
-                                                                ))}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Markov Analysis Tab */}
-                    {activeTab === 'markov' && analysis && (
-                        <div className="space-y-6">
-                            <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h3 className="text-xl font-semibold mb-4">Markov Chain Transitions</h3>
-                                <p className="text-gray-600 mb-4">
-                                    Shows the probability of each number appearing in the next week based on its current appearance.
-                                </p>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                    {Object.entries(analysis.markov)
-                                        .sort(([, a], [, b]) => b.probability - a.probability)
-                                        .slice(0, 20)
-                                        .map(([num, data]) => (
-                                            <div key={num} className="bg-gray-50 rounded-lg p-4">
-                                                <div className="text-lg font-bold text-gray-800">{num}</div>
-                                                <div className="text-sm text-gray-600">
-                                                    {(data.probability * 100).toFixed(1)}% chance
-                                                </div>
-                                                <div className="text-xs text-gray-500">
-                                                    {data.appears}/{data.total} times
-                                                </div>
-                                                <div className="mt-2 bg-gray-200 rounded-full h-2">
-                                                    <div
-                                                        className="bg-blue-500 h-2 rounded-full"
-                                                        style={{ width: `${data.probability * 100}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        ))}
-                                </div>
+                            </h3>
+                            <div className="text-sm text-gray-500 mt-1">Actual Result:
+                                <span className="ml-2 font-mono font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded-lg">
+                                    {actualNumbers.join(' - ')}
+                                </span>
                             </div>
                         </div>
-                    )}
+                        <button
+                            onClick={() => setSelectedDraw(null)}
+                            className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-900"
+                        >
+                            <X size={24} />
+                        </button>
+                    </div>
 
-                    {/* Gap Analysis Tab */}
-                    {activeTab === 'gaps' && analysis && (
-                        <div className="space-y-6">
-                            <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h3 className="text-xl font-semibold mb-4">Gap Analysis</h3>
-                                <p className="text-gray-600 mb-4">
-                                    Identifies numbers that are overdue based on their historical appearance patterns.
-                                </p>
+                    <div className="p-6 space-y-8">
+                        {/* 1. Banker Pairs Performance */}
+                        {topPair ? (
+                            <div className="bg-indigo-50 rounded-2xl p-6 border border-indigo-100 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                    <Target size={100} className="text-indigo-900" />
+                                </div>
+                                <h4 className="font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                                    <span className="bg-indigo-200 text-indigo-800 p-1 rounded-md text-xs">STRATEGY 1</span>
+                                    Top Banker Pair (1-to-Play)
+                                </h4>
 
-                                {chartData.gapScatterData && (
-                                    <div className="mb-6">
-                                        <h4 className="text-lg font-semibold mb-2">Average Gap vs Due Score</h4>
-                                        <ResponsiveContainer width="100%" height={400}>
-                                            <ScatterChart data={chartData.gapScatterData}>
-                                                <CartesianGrid strokeDasharray="3 3" />
-                                                <XAxis
-                                                    dataKey="avgGap"
-                                                    name="Average Gap"
-                                                    label={{ value: 'Average Gap (weeks)', position: 'insideBottom', offset: -5 }}
-                                                />
-                                                <YAxis
-                                                    dataKey="dueScore"
-                                                    name="Due Score"
-                                                    label={{ value: 'Due Score', angle: -90, position: 'insideLeft' }}
-                                                />
-                                                <Tooltip
-                                                    formatter={(value, name) => [value.toFixed(2), name]}
-                                                    labelFormatter={(label) => `Number: ${label}`}
-                                                />
-                                                <Scatter name="Numbers" dataKey="dueScore" fill="#8884d8" />
-                                            </ScatterChart>
-                                        </ResponsiveContainer>
+                                <div className="flex items-center gap-6">
+                                    <div className="text-center bg-white p-4 rounded-xl shadow-sm min-w-[120px] relative">
+                                        <div className="text-xs text-gray-400 uppercase font-bold mb-1">Predicted</div>
+                                        <div className="text-2xl font-black text-indigo-600">
+                                            {topPair.numbers.join('-')}
+                                        </div>
+                                        <div className="text-[10px] text-gray-400 mt-1">
+                                            {topPair.reliability?.toFixed(0) ?? '0'}% Hits
+                                        </div>
+                                        {/* Show Smart Timing if this banker is also a Chase candidate */}
+                                        {(() => {
+                                            const chaseMatch = historicalPrediction.chaseBankers?.find(cb => cb.pair === topPair.pair);
+                                            // Only show if it matches and has a positive expectedIn (meaning it's due)
+                                            if (chaseMatch && chaseMatch.expectedIn) {
+                                                const days = chaseMatch.expectedIn * 7;
+                                                return (
+                                                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-indigo-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap shadow-sm border border-white">
+                                                        Due in ~{chaseMatch.expectedIn} Wks
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
+                                    </div>
+
+                                    <div className="flex-1">
+                                        <div className="text-sm font-medium text-gray-600 mb-2">Outcome</div>
+                                        <div className="flex gap-2">
+                                            {topPair.numbers.map(n => {
+                                                const isHit = actualNumbers.includes(n);
+                                                return (
+                                                    <div key={n} className={`flex-1 p-3 rounded-xl border flex items-center justify-center gap-2 ${isHit ? 'bg-green-500 text-white border-green-600 shadow-lg shadow-green-200 transform scale-105' : 'bg-white border-gray-200 text-gray-400'}`}>
+                                                        <span className="font-bold text-lg">{n}</span>
+                                                        {isHit && <Target size={16} />}
+                                                    </div>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                                {topPair.numbers.some(n => actualNumbers.includes(n)) ? (
+                                    <div className="mt-4 bg-green-100 text-green-700 px-4 py-2 rounded-lg text-center font-bold text-sm">
+                                        ✅ SUCCESS: At least one number hit!
+                                    </div>
+                                ) : (
+                                    <div className="mt-4 bg-red-100 text-red-700 px-4 py-2 rounded-lg text-center font-bold text-sm">
+                                        ❌ MISS: No numbers hit from pair.
                                     </div>
                                 )}
+                            </div>
+                        ) : (
+                            <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100 text-center text-gray-500">
+                                No confident banker pairs found for this week in historical data.
+                            </div>
+                        )}
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <h4 className="text-lg font-semibold mb-3">Most Overdue Numbers</h4>
-                                        <div className="space-y-2">
-                                            {Object.entries(analysis.gaps)
-                                                .filter(([num, data]) => data.status === 'overdue')
-                                                .sort(([, a], [, b]) => b.dueScore - a.dueScore)
-                                                .slice(0, 10)
-                                                .map(([num, data]) => (
-                                                    <div key={num} className="flex items-center justify-between bg-red-50 rounded-lg p-3">
-                                                        <div>
-                                                            <span className="font-bold text-red-800">{num}</span>
-                                                            <span className="text-sm text-red-600 ml-2">
-                                                                {data.weeksSinceLastAppearance} weeks ago
-                                                            </span>
-                                                        </div>
-                                                        <div className="text-right">
-                                                            <div className="text-sm font-medium text-red-700">
-                                                                {data.dueScore.toFixed(1)}x overdue
-                                                            </div>
-                                                            <div className="text-xs text-red-500">
-                                                                Avg gap: {data.avgGap?.toFixed(1)} weeks
-                                                            </div>
-                                                        </div>
+                        {/* 2. Top 5 Single Bankers */}
+                        <div>
+                            <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <TrendingUp size={20} className="text-blue-500" />
+                                Top 5 Single Bankers
+                            </h4>
+                            <div className="grid grid-cols-5 gap-2">
+                                {top5Ensemble.map((pred, i) => {
+                                    const isHit = actualNumbers.includes(pred.number);
+                                    return (
+                                        <div key={pred.number} className={`relative p-3 rounded-xl border flex flex-col items-center justify-center ${isHit ? 'bg-green-500 text-white border-green-600 shadow-lg' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
+                                            <span className="text-xs font-semibold opacity-70 mb-1">#{i + 1}</span>
+                                            <span className="text-xl font-black">{pred.number}</span>
+                                            {isHit && <div className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">HIT</div>}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            <div className="mt-3 text-right text-xs text-gray-400">
+                                Total Hits: <span className="font-bold text-gray-900">{top5Ensemble.filter(p => actualNumbers.includes(p.number)).length} / 5</span>
+                            </div>
+                        </div>
+
+                        {/* 3. Chase Tracker (New) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Chase Pair */}
+                            {bestChasePair && (
+                                <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100 animate-in slide-in-from-bottom-6 duration-500">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <h4 className="font-bold text-amber-900 flex items-center gap-2">
+                                            <AlertTriangle size={20} className="text-amber-500" />
+                                            Chase Pair (2-to-Play)
+                                        </h4>
+                                        <span className="bg-amber-100 text-amber-800 text-[10px] font-black uppercase px-2 py-1 rounded-full">
+                                            Due in ~{bestChasePair.expectedIn || Math.max(1, 21 - bestChasePair.weeksSinceLast)} Wks
+                                        </span>
+                                    </div>
+
+                                    <div className="flex flex-col gap-4">
+                                        <div className="text-center">
+                                            <div className="text-xs text-amber-700/60 uppercase font-bold mb-1">Pair</div>
+                                            <div className="flex gap-1 justify-center">
+                                                {bestChasePair.pair.split('-').map(n => (
+                                                    <div key={n} className="w-10 h-10 bg-white border-2 border-amber-200 text-amber-900 rounded-xl flex items-center justify-center font-black shadow-sm">
+                                                        {n}
                                                     </div>
                                                 ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="text-lg font-semibold mb-3">Never Appeared</h4>
-                                        <div className="space-y-2">
-                                            {Object.entries(analysis.gaps)
-                                                .filter(([num, data]) => data.status === 'never_appeared')
-                                                .slice(0, 10)
-                                                .map(([num, data]) => (
-                                                    <div key={num} className="flex items-center justify-between bg-yellow-50 rounded-lg p-3">
-                                                        <span className="font-bold text-yellow-800">{num}</span>
-                                                        <span className="text-sm text-yellow-600">Never appeared</span>
-                                                    </div>
-                                                ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Pattern Recognition Tab */}
-                    {activeTab === 'patterns' && analysis && (
-                        <div className="space-y-6">
-                            <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h3 className="text-xl font-semibold mb-4">Pattern Recognition</h3>
-                                <p className="text-gray-600 mb-4">
-                                    Identifies hot, cold, trending, and declining numbers based on frequency and momentum analysis.
-                                </p>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    <div>
-                                        <h4 className="text-lg font-semibold mb-3 text-red-600">Hot Numbers</h4>
-                                        <div className="space-y-2">
-                                            {analysis.patterns.classification.hot.map(num => (
-                                                <div key={num} className="bg-red-50 rounded-lg p-3">
-                                                    <div className="font-bold text-red-800">{num}</div>
-                                                    <div className="text-sm text-red-600">
-                                                        {((analysis.patterns.patterns.frequency[num] / data.length) * 100).toFixed(1)}% freq
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="text-lg font-semibold mb-3 text-blue-600">Cold Numbers</h4>
-                                        <div className="space-y-2">
-                                            {analysis.patterns.classification.cold.map(num => (
-                                                <div key={num} className="bg-blue-50 rounded-lg p-3">
-                                                    <div className="font-bold text-blue-800">{num}</div>
-                                                    <div className="text-sm text-blue-600">
-                                                        {((analysis.patterns.patterns.frequency[num] / data.length) * 100).toFixed(1)}% freq
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="text-lg font-semibold mb-3 text-green-600">Trending Up</h4>
-                                        <div className="space-y-2">
-                                            {analysis.patterns.classification.trending.map(num => (
-                                                <div key={num} className="bg-green-50 rounded-lg p-3">
-                                                    <div className="font-bold text-green-800">{num}</div>
-                                                    <div className="text-sm text-green-600">
-                                                        +{(analysis.patterns.patterns.momentum[num] * 100).toFixed(1)}% momentum
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h4 className="text-lg font-semibold mb-3 text-orange-600">Declining</h4>
-                                        <div className="space-y-2">
-                                            {analysis.patterns.classification.declining.map(num => (
-                                                <div key={num} className="bg-orange-50 rounded-lg p-3">
-                                                    <div className="font-bold text-orange-800">{num}</div>
-                                                    <div className="text-sm text-orange-600">
-                                                        {(analysis.patterns.patterns.momentum[num] * 100).toFixed(1)}% momentum
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Predictions Tab */}
-                    {activeTab === 'predictions' && analysis && (
-                        <div className="space-y-6">
-                            <div className="bg-white rounded-xl shadow-lg p-6">
-                                <h3 className="text-xl font-semibold mb-4">Predictions for Next Week</h3>
-                                <p className="text-gray-600 mb-6">
-                                    Combined predictions using Markov chains, gap analysis, and pattern recognition.
-                                </p>
-
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div>
-                                        <h4 className="text-lg font-semibold mb-3">Ensemble Predictions</h4>
-                                        <div className="space-y-3">
-                                            {analysis.predictions.ensemble.slice(0, 10).map((pred, idx) => (
-                                                <div key={pred.number} className="flex items-center justify-between bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg p-4">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-                                                            {idx + 1}
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-bold text-gray-800 text-lg">{pred.number}</div>
-                                                            <div className="text-sm text-gray-600 capitalize">{pred.confidence} confidence</div>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <div className="text-lg font-bold text-purple-600">
-                                                            {(pred.score * 100).toFixed(1)}%
-                                                        </div>
-                                                        <div className="w-24 bg-gray-200 rounded-full h-2 mt-1">
-                                                            <div
-                                                                className="bg-purple-500 h-2 rounded-full"
-                                                                style={{ width: `${Math.min(pred.score * 200, 100)}%` }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-6">
-                                        <div>
-                                            <h4 className="text-lg font-semibold mb-3">Method Breakdown</h4>
-
-                                            <div className="bg-blue-50 rounded-lg p-4 mb-4">
-                                                <h5 className="font-semibold text-blue-800 mb-2">Markov Chain</h5>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {analysis.predictions.markov.slice(0, 5).map(pred => (
-                                                        <span key={pred.number} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                                                            {pred.number} ({(pred.probability * 100).toFixed(1)}%)
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div className="bg-red-50 rounded-lg p-4 mb-4">
-                                                <h5 className="font-semibold text-red-800 mb-2">Gap Analysis</h5>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {analysis.predictions.gaps.slice(0, 5).map(pred => (
-                                                        <span key={pred.number} className="bg-red-100 text-red-800 px-2 py-1 rounded text-sm">
-                                                            {pred.number} ({pred.dueScore.toFixed(1)}x)
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div className="bg-green-50 rounded-lg p-4">
-                                                <h5 className="font-semibold text-green-800 mb-2">Pattern Recognition</h5>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {analysis.predictions.patterns.slice(0, 5).map(pred => (
-                                                        <span key={pred.number} className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
-                                                            {pred.number} (+{(pred.momentum * 100).toFixed(1)}%)
-                                                        </span>
-                                                    ))}
-                                                </div>
                                             </div>
                                         </div>
 
-                                        <div>
-                                            <h4 className="text-lg font-semibold mb-3">Prediction Confidence</h4>
-                                            <div className="space-y-2">
-                                                {['high', 'medium', 'low'].map(confidence => {
-                                                    const count = analysis.predictions.ensemble.filter(p => p.confidence === confidence).length;
-                                                    const percentage = (count / analysis.predictions.ensemble.length) * 100;
-                                                    return (
-                                                        <div key={confidence} className="flex items-center justify-between">
-                                                            <span className="capitalize text-gray-700">{confidence} Confidence</span>
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="w-20 bg-gray-200 rounded-full h-2">
-                                                                    <div
-                                                                        className={`h-2 rounded-full ${confidence === 'high' ? 'bg-green-500' :
-                                                                            confidence === 'medium' ? 'bg-yellow-500' : 'bg-red-500'
-                                                                            }`}
-                                                                        style={{ width: `${percentage}%` }}
-                                                                    />
-                                                                </div>
-                                                                <span className="text-sm text-gray-600">{count}</span>
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })}
+                                        <div className="bg-white/50 rounded-xl p-3 border border-amber-100">
+                                            <div className="text-xs font-bold text-amber-800 mb-2">Outcome</div>
+                                            {chaseOutcome && chaseOutcome.hit ? (
+                                                <div className="flex items-center gap-2 text-green-700">
+                                                    <div className="bg-green-100 p-1 rounded-full"><CheckCircle2 size={16} /></div>
+                                                    <span className="font-bold text-xs">Hit {chaseOutcome.weeksToHit} weeks later!</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2 text-gray-500">
+                                                    <div className="bg-gray-100 p-1 rounded-full"><X size={16} /></div>
+                                                    <span className="font-medium text-xs">Did not hit in 21 wks.</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Chase Single (New) */}
+                            {bestChaseSingle && (
+                                <div className="bg-rose-50 rounded-2xl p-6 border border-rose-100 animate-in slide-in-from-bottom-6 duration-500 delay-100">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <h4 className="font-bold text-rose-900 flex items-center gap-2">
+                                            <Target size={20} className="text-rose-500" />
+                                            Chase Single
+                                        </h4>
+                                        <span className="bg-rose-100 text-rose-800 text-[10px] font-black uppercase px-2 py-1 rounded-full">
+                                            Due in ~{bestChaseSingle.expectedIn || 1} Wks
+                                        </span>
+                                    </div>
+
+                                    <div className="flex flex-col gap-4">
+                                        <div className="text-center">
+                                            <div className="text-xs text-rose-700/60 uppercase font-bold mb-1">Number</div>
+                                            <div className="w-12 h-12 mx-auto bg-white border-2 border-rose-200 text-rose-900 rounded-xl flex items-center justify-center font-black shadow-sm text-xl">
+                                                {bestChaseSingle.number}
                                             </div>
                                         </div>
+
+                                        <div className="bg-white/50 rounded-xl p-3 border border-rose-100">
+                                            <div className="text-xs font-bold text-rose-800 mb-2">Outcome</div>
+                                            {singleChaseOutcome && singleChaseOutcome.hit ? (
+                                                <div className="flex items-center gap-2 text-green-700">
+                                                    <div className="bg-green-100 p-1 rounded-full"><CheckCircle2 size={16} /></div>
+                                                    <span className="font-bold text-xs">Hit {singleChaseOutcome.weeksToHit} weeks later!</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-2 text-gray-500">
+                                                    <div className="bg-gray-100 p-1 rounded-full"><X size={16} /></div>
+                                                    <span className="font-medium text-xs">Did not hit in 5 wks.</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
-                    )}
 
-                    {/* Settings Tab */}
-                    {activeTab === 'settings' && (
-                        <div className="bg-white rounded-xl shadow-lg p-6">
-                            <h3 className="text-xl font-semibold mb-4">Analysis Settings</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <h4 className="text-lg font-semibold mb-3">Number Range</h4>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Minimum Number
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={settings.numberRange.min}
-                                                onChange={(e) => setSettings(prev => ({
-                                                    ...prev,
-                                                    numberRange: { ...prev.numberRange, min: parseInt(e.target.value) }
-                                                }))}
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Maximum Number
-                                            </label>
-                                            <input
-                                                type="number"
-                                                value={settings.numberRange.max}
-                                                onChange={(e) => setSettings(prev => ({
-                                                    ...prev,
-                                                    numberRange: { ...prev.numberRange, max: parseInt(e.target.value) }
-                                                }))}
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h4 className="text-lg font-semibold mb-3">Analysis Parameters</h4>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Recent Weeks Weight ({settings.recentWeeksWeight})
-                                            </label>
-                                            <input
-                                                type="range"
-                                                min="1"
-                                                max="10"
-                                                value={settings.recentWeeksWeight}
-                                                onChange={(e) => setSettings(prev => ({
-                                                    ...prev,
-                                                    recentWeeksWeight: parseInt(e.target.value)
-                                                }))}
-                                                className="w-full"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Overdue Threshold ({settings.overdueThreshold})
-                                            </label>
-                                            <input
-                                                type="range"
-                                                min="1"
-                                                max="3"
-                                                step="0.1"
-                                                value={settings.overdueThreshold}
-                                                onChange={(e) => setSettings(prev => ({
-                                                    ...prev,
-                                                    overdueThreshold: parseFloat(e.target.value)
-                                                }))}
-                                                className="w-full"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Hot Threshold ({settings.hotThreshold})
-                                            </label>
-                                            <input
-                                                type="range"
-                                                min="0.1"
-                                                max="0.5"
-                                                step="0.05"
-                                                value={settings.hotThreshold}
-                                                onChange={(e) => setSettings(prev => ({
-                                                    ...prev,
-                                                    hotThreshold: parseFloat(e.target.value)
-                                                }))}
-                                                className="w-full"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Cold Threshold ({settings.coldThreshold})
-                                            </label>
-                                            <input
-                                                type="range"
-                                                min="0.01"
-                                                max="0.2"
-                                                step="0.01"
-                                                value={settings.coldThreshold}
-                                                onChange={(e) => setSettings(prev => ({
-                                                    ...prev,
-                                                    coldThreshold: parseFloat(e.target.value)
-                                                }))}
-                                                className="w-full"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
-                                <h5 className="font-semibold text-yellow-800 mb-2">Important Notes</h5>
-                                <ul className="text-sm text-yellow-700 space-y-1">
-                                    <li>• This is a demonstration of temporal analysis methods</li>
-                                    <li>• Results are based on historical patterns and statistical analysis</li>
-                                    <li>• Larger datasets provide more reliable predictions</li>
-                                    <li>• No prediction method can guarantee future outcomes</li>
-                                </ul>
-                            </div>
-                        </div>
-                    )}
+                    </div>
                 </div>
+            </div>
+        );
+    };
 
-                {/* Footer */}
-                <div className="mt-8 text-center text-gray-500 text-sm">
-                    <p>Advanced Temporal Sequence Analysis Dashboard</p>
-                    <p>Built with React, Recharts, and statistical analysis methods</p>
+    return (
+        <div className="max-w-7xl mx-auto">
+            {/* Top Stats & Actions */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-800">Advanced temporal Analysis</h1>
+                    <p className="text-sm text-gray-500">Processing {data.length} data points</p>
                 </div>
+                <div className="flex gap-2">
+                    <button
+                        onClick={generateNewData}
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                    >
+                        <Upload size={18} />
+                        New Data
+                    </button>
+                    <button
+                        onClick={runAnalysis}
+                        disabled={isAnalyzing}
+                        className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-sm font-medium disabled:opacity-50"
+                    >
+                        <Play size={18} />
+                        {isAnalyzing ? 'Analyzing...' : 'Analyze Now'}
+                    </button>
+                </div>
+            </div>
+
+            {/* Navigation tabs - Refined */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-2 mb-6 shadow-sm overflow-x-auto whitespace-nowrap scrollbar-hide">
+                <div className="flex gap-1">
+                    <TabButton id="overview" label="Overview" icon={BarChart3} active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} />
+                    <TabButton id="markov" label="Markov Analysis" icon={TrendingUp} active={activeTab === 'markov'} onClick={() => setActiveTab('markov')} />
+                    <TabButton id="gaps" label="Gap Analysis" icon={Clock} active={activeTab === 'gaps'} onClick={() => setActiveTab('gaps')} />
+                    <TabButton id="patterns" label="Pattern Recognition" icon={Target} active={activeTab === 'patterns'} onClick={() => setActiveTab('patterns')} />
+                    <TabButton id="predictions" label="Predictions" icon={TrendingDown} active={activeTab === 'predictions'} onClick={() => setActiveTab('predictions')} />
+                    <TabButton id="chase" label="Chase Tracker" icon={Repeat} active={activeTab === 'chase'} onClick={() => setActiveTab('chase')} />
+                    <TabButton id="settings" label="Settings" icon={Settings} active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} />
+                </div>
+            </div>
+
+            <HistoricalModal />
+
+            {/* Content */}
+            <div className="space-y-6">
+                {activeTab === 'overview' && <OverviewTab analysis={analysis} data={data} onSelectDraw={handleDrawSelect} />}
+                {activeTab === 'markov' && <MarkovTab analysis={analysis} />}
+                {activeTab === 'gaps' && <GapTab analysis={analysis} />}
+                {activeTab === 'patterns' && <PatternTab analysis={analysis} />}
+                {activeTab === 'predictions' && <PredictionTab analysis={analysis} />}
+                {activeTab === 'chase' && <ChaseTab analysis={analysis} />}
+
+                {activeTab === 'settings' && (
+                    <div className="bg-white rounded-xl shadow-lg p-6">
+                        <h3 className="text-xl font-semibold mb-4">Analysis Settings</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 className="text-lg font-semibold mb-3">Number Range</h4>
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Number</label>
+                                        <input
+                                            type="number"
+                                            value={settings.numberRange.min}
+                                            onChange={(e) => setSettings(prev => ({
+                                                ...prev,
+                                                numberRange: { ...prev.numberRange, min: parseInt(e.target.value) }
+                                            }))}
+                                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Maximum Number</label>
+                                        <input
+                                            type="number"
+                                            value={settings.numberRange.max}
+                                            onChange={(e) => setSettings(prev => ({
+                                                ...prev,
+                                                numberRange: { ...prev.numberRange, max: parseInt(e.target.value) }
+                                            }))}
+                                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 className="text-lg font-semibold mb-3">Analysis Parameters</h4>
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Recent Weeks Weight ({settings.recentWeeksWeight})</label>
+                                        <input
+                                            type="range" min="1" max="10"
+                                            value={settings.recentWeeksWeight}
+                                            onChange={(e) => setSettings(prev => ({ ...prev, recentWeeksWeight: parseInt(e.target.value) }))}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Overdue Threshold ({settings.overdueThreshold})</label>
+                                        <input
+                                            type="range" min="1" max="3" step="0.1"
+                                            value={settings.overdueThreshold}
+                                            onChange={(e) => setSettings(prev => ({ ...prev, overdueThreshold: parseFloat(e.target.value) }))}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Hot Threshold ({settings.hotThreshold})</label>
+                                        <input
+                                            type="range" min="0.1" max="0.5" step="0.05"
+                                            value={settings.hotThreshold}
+                                            onChange={(e) => setSettings(prev => ({ ...prev, hotThreshold: parseFloat(e.target.value) }))}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Cold Threshold ({settings.coldThreshold})</label>
+                                        <input
+                                            type="range" min="0.01" max="0.2" step="0.01"
+                                            value={settings.coldThreshold}
+                                            onChange={(e) => setSettings(prev => ({ ...prev, coldThreshold: parseFloat(e.target.value) }))}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-6 p-4 bg-yellow-50 rounded-lg">
+                            <h5 className="font-semibold text-yellow-800 mb-2">Important Notes</h5>
+                            <ul className="text-sm text-yellow-700 space-y-1">
+                                <li>• This is a demonstration of temporal analysis methods</li>
+                                <li>• Results are based on historical patterns and statistical analysis</li>
+                                <li>• Larger datasets provide more reliable predictions</li>
+                                <li>• No prediction method can guarantee future outcomes</li>
+                            </ul>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
