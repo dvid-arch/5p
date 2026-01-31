@@ -67,25 +67,28 @@ const OverviewTab = ({ analysis, data, onSelectDraw }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {analysis.processedDraws.slice(-10).reverse().map((draw, idx) => (
-                                <tr
-                                    key={idx}
-                                    className="border-b hover:bg-gray-50 cursor-pointer transition-colors"
-                                    onClick={() => onSelectDraw && onSelectDraw({ week: draw.index, numbers: draw.numbers })}
-                                >
-                                    <td className="p-2 font-medium">{draw.index}</td>
-                                    <td className="p-2">
-                                        <div className="flex gap-1">
-                                            {draw.numbers.map((num, i) => (
-                                                <span key={i} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                                                    {num}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </td>
-                                    <td className="p-2 font-semibold text-gray-700">{draw.sum}</td>
-                                </tr>
-                            ))}
+                            {[...analysis.processedDraws]
+                                .sort((a, b) => (a.week || a.index) - (b.week || b.index)) // Sort by Week (Newest-to-Oldest label)
+                                .slice(0, 10) // Take top 10 labels (1, 2, 3...)
+                                .map((draw, idx) => (
+                                    <tr
+                                        key={idx}
+                                        className="border-b hover:bg-gray-50 cursor-pointer transition-colors"
+                                        onClick={() => onSelectDraw && onSelectDraw({ week: draw.week, numbers: draw.numbers })}
+                                    >
+                                        <td className="p-2 font-medium">{draw.week || draw.index}</td>
+                                        <td className="p-2">
+                                            <div className="flex gap-1">
+                                                {draw.numbers.map((num, i) => (
+                                                    <span key={i} className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                                                        {num}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </td>
+                                        <td className="p-2 font-semibold text-gray-700">{draw.sum}</td>
+                                    </tr>
+                                ))}
                         </tbody>
                     </table>
                 </div>

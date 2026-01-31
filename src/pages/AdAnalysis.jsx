@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { BarChart3, TrendingUp, Clock, Target, TrendingDown, Settings, Upload, Play, Repeat, X, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { datamod } from '../constant/data';
+import { BarChart3, TrendingUp, Clock, Target, TrendingDown, Settings, Upload, Play, Repeat, X, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Radio } from 'lucide-react';
+import { truestdata } from '../constant/data';
 import { useLotteryAnalysis, analyzeLotteryData } from '../hooks/useLotteryAnalysis';
 
 // Components
@@ -10,6 +10,7 @@ import GapTab from '../components/AnalysisTabs/GapTab';
 import PatternTab from '../components/AnalysisTabs/PatternTab';
 import ChaseTab from '../components/AnalysisTabs/ChaseTab';
 import PredictionTab from '../components/AnalysisTabs/PredictionTab';
+import SignalTab from '../components/AnalysisTabs/SignalTab';
 
 
 // Helper functions
@@ -47,19 +48,21 @@ const generateSampleData = (weeks = 52, settings = { numberRange: { min: 1, max:
     return sampleData;
 };
 
-const convertDatamodToExpectedFormat = (dm) => {
+const convertTruestdataToExpectedFormat = (dm) => {
     if (!dm) return [];
-    return dm.map((weekNumbers, index) => ({
-        week: index + 1,
-        numbers: [...weekNumbers].sort((a, b) => a - b),
-        date: new Date(2024, 0, (index + 1) * 7).toISOString().split('T')[0]
-    }));
+    // dm is [Newest, ..., Oldest]
+    const total = dm.length;
+    return dm.map((nums, i) => ({
+        week: i + 1, // Newest gets 1
+        numbers: [...nums].sort((a, b) => a - b),
+        date: new Date(2024, 0, (total - i) * 7).toISOString().split('T')[0]
+    })); // Keep as [Newest, ..., Oldest] to allow hook to flip it once correctly
 };
 
 const TemporalSequenceAnalyzer = () => {
     const [data, setData] = useState(() => {
-        return datamod && datamod.length > 0
-            ? convertDatamodToExpectedFormat(datamod)
+        return truestdata && truestdata.length > 0
+            ? convertTruestdataToExpectedFormat(truestdata)
             : generateSampleData(52);
     });
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -68,8 +71,8 @@ const TemporalSequenceAnalyzer = () => {
         numberRange: { min: 1, max: 49 },
         recentWeeksWeight: 3,
         overdueThreshold: 1.5,
-        hotThreshold: 0.3,
-        coldThreshold: 0.1,
+        hotThreshold: 0.21,
+        coldThreshold: 0.19,
     });
     const [selectedDraw, setSelectedDraw] = useState(null);
     const [historicalPrediction, setHistoricalPrediction] = useState(null);
@@ -91,15 +94,19 @@ const TemporalSequenceAnalyzer = () => {
     };
 
     const handleDrawSelect = (draw) => {
-        // Slice data UP TO the selected draw (exclusive of the draw itself for prediction)
-        // actually, we want to predict FOR this draw, so we use data BEFORE it.
+        // Since data is [Newest, ..., Oldest], the "Past Data" for a specific week 
+        // is everything AFTER its index in the array.
         const drawIndex = data.findIndex(d => d.week === draw.week);
-        if (drawIndex <= 10) {
-            alert("Not enough historical data to generate a prediction for this week.");
+
+        // We need at least 50 weeks of history to make a valid prediction
+        const historyAvailable = data.length - drawIndex - 1;
+
+        if (historyAvailable < 50) {
+            alert(`Not enough historical data before Week ${draw.week} to simulate a prediction. (Need 50+ weeks of prior history)`);
             return;
         }
 
-        const pastData = data.slice(0, drawIndex);
+        const pastData = data.slice(drawIndex + 1);
         const prediction = analyzeLotteryData(pastData, settings);
 
         setHistoricalPrediction(prediction);
@@ -122,19 +129,17 @@ const TemporalSequenceAnalyzer = () => {
     const HistoricalModal = () => {
         if (!selectedDraw || !historicalPrediction) return null;
 
-        const { predictions, chasePairs } = historicalPrediction;
         const actualNumbers = selectedDraw.numbers;
 
-        // Check Hits for existing strategies
-        const top5Bankers = predictions.bankers?.slice(0, 5) || [];
-        const top5Ensemble = predictions.ensemble?.slice(0, 5) || [];
-        // Use predictions.bankers for "Banker Pair (1-to-Play)" as it has the reliability metric
-        const topPair = predictions.bankers && predictions.bankers.length > 0 ? predictions.bankers[0] : null;
+        // UNIFIED AUDIT LOGIC: Use Signal Intelligence for Historical Reviews
+        const { signalPredictions, chasePairs } = historicalPrediction;
+        const top5Singles = signalPredictions.singles?.slice(0, 5) || [];
+        const topPair = signalPredictions.bankers?.length > 0 ? signalPredictions.bankers[0] : null;
 
         // Chase Strategy Logic
 
         // TIME TRAVEL: Look up what we predicted BACK THEN
-        const historyLog = historicalPrediction.history?.historyLog || {};
+        const historyLog = historicalPrediction.backtest?.historyLog || {};
         const pastPrediction = historyLog[selectedDraw.week];
 
         // 1. Chase Pairs
@@ -154,19 +159,25 @@ const TemporalSequenceAnalyzer = () => {
             const currentDrawIndex = data.findIndex(d => d.week === selectedDraw.week);
             if (currentDrawIndex !== -1) {
                 let winWeekOffset = -1;
+                let hitWeek = -1;
                 // If it's a historical object, it has 'pair' property directly
                 const pairStr = bestChasePair.pair;
                 const targetNums = pairStr.split('-').map(Number);
 
-                // Check up to expected + buffer (e.g. 10 weeks beyond target)
-                for (let i = 1; i <= expectedIn + 10; i++) {
-                    const futureDraw = data[currentDrawIndex + i];
+                // Check up to 10 weeks beyond current to see if the chase hit
+                for (let i = 1; i <= Math.max(10, expectedIn + 3); i++) {
+                    const futureDraw = data[currentDrawIndex - i]; // Subtraction because descending [Newest, ..., Oldest]
                     if (!futureDraw) break;
+                    // Alpha Strategy: 2-to-play requires BOTH numbers to hit
                     const hasP1 = futureDraw.numbers.includes(targetNums[0]);
                     const hasP2 = futureDraw.numbers.includes(targetNums[1]);
-                    if (hasP1 && hasP2) { winWeekOffset = i; break; }
+                    if (hasP1 && hasP2) {
+                        winWeekOffset = i;
+                        hitWeek = futureDraw.week;
+                        break;
+                    }
                 }
-                chaseOutcome = { hit: winWeekOffset !== -1, weeksToHit: winWeekOffset, dueIn: dueInWeeks };
+                chaseOutcome = { hit: winWeekOffset !== -1, weeksToHit: winWeekOffset, dueIn: dueInWeeks, hitWeek };
             }
         }
 
@@ -182,15 +193,17 @@ const TemporalSequenceAnalyzer = () => {
             const currentDrawIndex = data.findIndex(d => d.week === selectedDraw.week);
             if (currentDrawIndex !== -1) {
                 let winWeekOffset = -1;
-                for (let i = 1; i <= expectedIn + 5; i++) { // Check window + buffer
-                    const futureDraw = data[currentDrawIndex + i];
+                let hitWeek = -1;
+                for (let i = 1; i <= Math.max(10, expectedIn + 3); i++) { // Check window + buffer
+                    const futureDraw = data[currentDrawIndex - i]; // Subtraction because descending
                     if (!futureDraw) break;
                     if (futureDraw.numbers.includes(bestChaseSingle.number)) {
                         winWeekOffset = i;
+                        hitWeek = futureDraw.week;
                         break;
                     }
                 }
-                singleChaseOutcome = { hit: winWeekOffset !== -1, weeksToHit: winWeekOffset };
+                singleChaseOutcome = { hit: winWeekOffset !== -1, weeksToHit: winWeekOffset, hitWeek };
             }
         }
 
@@ -199,14 +212,17 @@ const TemporalSequenceAnalyzer = () => {
                 <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-200">
                     <div className="sticky top-0 bg-white/90 backdrop-blur-md p-6 border-b border-gray-100 flex justify-between items-center z-10">
                         <div>
-                            <div className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-1">Historical Review</div>
+                            <div className="flex items-center gap-2 mb-1">
+                                <div className="text-xs font-bold text-blue-500 uppercase tracking-wider">Historical Review</div>
+                                <span className="bg-blue-100 text-blue-600 text-[9px] font-black px-2 py-0.5 rounded-full uppercase">Blind Simulation</span>
+                            </div>
                             <h3 className="text-2xl font-black text-gray-900 flex items-center gap-2">
-                                Week {selectedDraw.week}
+                                Predicting Week {selectedDraw.week}
                                 <div className="flex gap-1 ml-4">
                                     <button
                                         onClick={() => {
                                             const currIdx = data.findIndex(d => d.week === selectedDraw.week);
-                                            if (currIdx > 0) setSelectedDraw(data[currIdx - 1]);
+                                            if (currIdx > 0) handleDrawSelect(data[currIdx - 1]);
                                         }}
                                         disabled={data.findIndex(d => d.week === selectedDraw.week) <= 0}
                                         className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-blue-600 disabled:opacity-30"
@@ -217,7 +233,7 @@ const TemporalSequenceAnalyzer = () => {
                                     <button
                                         onClick={() => {
                                             const currIdx = data.findIndex(d => d.week === selectedDraw.week);
-                                            if (currIdx < data.length - 1) setSelectedDraw(data[currIdx + 1]);
+                                            if (currIdx < data.length - 1) handleDrawSelect(data[currIdx + 1]);
                                         }}
                                         disabled={data.findIndex(d => d.week === selectedDraw.week) >= data.length - 1}
                                         className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-blue-600 disabled:opacity-30"
@@ -260,7 +276,7 @@ const TemporalSequenceAnalyzer = () => {
                                             {topPair.numbers.join('-')}
                                         </div>
                                         <div className="text-[10px] text-gray-400 mt-1">
-                                            {topPair.reliability?.toFixed(0) ?? '0'}% Hits
+                                            {(topPair.strength * 100).toFixed(0)}% Hits (Sim)
                                         </div>
                                         {/* Show Smart Timing if this banker is also a Chase candidate */}
                                         {(() => {
@@ -316,7 +332,7 @@ const TemporalSequenceAnalyzer = () => {
                                 Top 5 Single Bankers
                             </h4>
                             <div className="grid grid-cols-5 gap-2">
-                                {top5Ensemble.map((pred, i) => {
+                                {top5Singles.map((pred, i) => {
                                     const isHit = actualNumbers.includes(pred.number);
                                     return (
                                         <div key={pred.number} className={`relative p-3 rounded-xl border flex flex-col items-center justify-center ${isHit ? 'bg-green-500 text-white border-green-600 shadow-lg' : 'bg-gray-50 border-gray-100 text-gray-400'}`}>
@@ -328,7 +344,7 @@ const TemporalSequenceAnalyzer = () => {
                                 })}
                             </div>
                             <div className="mt-3 text-right text-xs text-gray-400">
-                                Total Hits: <span className="font-bold text-gray-900">{top5Ensemble.filter(p => actualNumbers.includes(p.number)).length} / 5</span>
+                                Total Hits: <span className="font-bold text-gray-900">{top5Singles.filter(p => actualNumbers.includes(p.number)).length} / 5</span>
                             </div>
                         </div>
 
@@ -343,7 +359,7 @@ const TemporalSequenceAnalyzer = () => {
                                             Chase Pair (2-to-Play)
                                         </h4>
                                         <span className="bg-amber-100 text-amber-800 text-[10px] font-black uppercase px-2 py-1 rounded-full">
-                                            Due in ~{bestChasePair.expectedIn || Math.max(1, 21 - bestChasePair.weeksSinceLast)} Wks
+                                            Due in ~{Math.max(1, bestChasePair.expectedIn || 1)} Wks
                                         </span>
                                     </div>
 
@@ -364,12 +380,14 @@ const TemporalSequenceAnalyzer = () => {
                                             {chaseOutcome && chaseOutcome.hit ? (
                                                 <div className="flex items-center gap-2 text-green-700">
                                                     <div className="bg-green-100 p-1 rounded-full"><CheckCircle2 size={16} /></div>
-                                                    <span className="font-bold text-xs">Hit {chaseOutcome.weeksToHit} weeks later!</span>
+                                                    <span className="font-bold text-xs italic">
+                                                        Hit in {chaseOutcome.weeksToHit} weeks (Verified at Week {chaseOutcome.hitWeek})
+                                                    </span>
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-2 text-gray-500">
                                                     <div className="bg-gray-100 p-1 rounded-full"><X size={16} /></div>
-                                                    <span className="font-medium text-xs">Did not hit in 21 wks.</span>
+                                                    <span className="font-medium text-xs">Did not hit in 10 wks.</span>
                                                 </div>
                                             )}
                                         </div>
@@ -386,7 +404,7 @@ const TemporalSequenceAnalyzer = () => {
                                             Chase Single
                                         </h4>
                                         <span className="bg-rose-100 text-rose-800 text-[10px] font-black uppercase px-2 py-1 rounded-full">
-                                            Due in ~{bestChaseSingle.expectedIn || 1} Wks
+                                            Due in ~{Math.max(1, bestChaseSingle.expectedIn || 1)} Wks
                                         </span>
                                     </div>
 
@@ -403,12 +421,14 @@ const TemporalSequenceAnalyzer = () => {
                                             {singleChaseOutcome && singleChaseOutcome.hit ? (
                                                 <div className="flex items-center gap-2 text-green-700">
                                                     <div className="bg-green-100 p-1 rounded-full"><CheckCircle2 size={16} /></div>
-                                                    <span className="font-bold text-xs">Hit {singleChaseOutcome.weeksToHit} weeks later!</span>
+                                                    <span className="font-bold text-xs italic">
+                                                        Hit in {singleChaseOutcome.weeksToHit} weeks (Verified at Week {singleChaseOutcome.hitWeek})
+                                                    </span>
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-2 text-gray-500">
                                                     <div className="bg-gray-100 p-1 rounded-full"><X size={16} /></div>
-                                                    <span className="font-medium text-xs">Did not hit in 5 wks.</span>
+                                                    <span className="font-medium text-xs">Did not hit in 10 wks.</span>
                                                 </div>
                                             )}
                                         </div>
@@ -454,6 +474,7 @@ const TemporalSequenceAnalyzer = () => {
             <div className="bg-white border border-gray-100 rounded-2xl p-2 mb-6 shadow-sm overflow-x-auto whitespace-nowrap scrollbar-hide">
                 <div className="flex gap-1">
                     <TabButton id="overview" label="Overview" icon={BarChart3} active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} />
+                    <TabButton id="signals" label="Signal Intelligence" icon={Radio} active={activeTab === 'signals'} onClick={() => setActiveTab('signals')} />
                     <TabButton id="markov" label="Markov Analysis" icon={TrendingUp} active={activeTab === 'markov'} onClick={() => setActiveTab('markov')} />
                     <TabButton id="gaps" label="Gap Analysis" icon={Clock} active={activeTab === 'gaps'} onClick={() => setActiveTab('gaps')} />
                     <TabButton id="patterns" label="Pattern Recognition" icon={Target} active={activeTab === 'patterns'} onClick={() => setActiveTab('patterns')} />
@@ -468,6 +489,7 @@ const TemporalSequenceAnalyzer = () => {
             {/* Content */}
             <div className="space-y-6">
                 {activeTab === 'overview' && <OverviewTab analysis={analysis} data={data} onSelectDraw={handleDrawSelect} />}
+                {activeTab === 'signals' && <SignalTab analysis={analysis} />}
                 {activeTab === 'markov' && <MarkovTab analysis={analysis} />}
                 {activeTab === 'gaps' && <GapTab analysis={analysis} />}
                 {activeTab === 'patterns' && <PatternTab analysis={analysis} />}

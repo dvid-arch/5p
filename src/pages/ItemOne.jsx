@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import Grid from "../components/Grid"
 import { useState, useMemo } from "react";
-import { ArrowLeft, Copy, CheckCircle2, TrendingUp, AlertCircle, Zap, Target, Award, Activity } from "lucide-react";
-import { testdata, bata, bata1, datamod, truestdata, simdata } from "../constant/data";
+import { ArrowLeft, Copy, CheckCircle2, TrendingUp, AlertCircle, Zap, Target, Award, Activity, ChevronLeft, ChevronRight } from "lucide-react";
+import { truestdata } from "../constant/data";
 import { useLotteryAnalysis } from "../hooks/useLotteryAnalysis";
 
 function CopyButton({ text }) {
@@ -44,21 +44,18 @@ function ItemOne() {
     const historicalData = useMemo(() => {
         let raw = [];
         switch (datasetName) {
-            case 'testdata': raw = testdata; break;
-            case 'bestdata': raw = truestdata ? [...truestdata].reverse() : []; break;
-            case 'bata': raw = bata; break;
-            case 'bata1': raw = bata1; break;
-            case 'datamod': raw = datamod; break;
-            case 'simdata': raw = simdata; break;
-            default: raw = datamod;
+            case 'truestdata':
+            case 'bestdata':
+            case 'datamod':
+            default: raw = truestdata || [];
         }
 
         // Since Week 1 is the latest, past data is everything AFTER the current index
         const idx = parseInt(itemIndex);
         const pastData = Array.isArray(raw) ? raw.slice(idx + 1) : [];
 
-        // Reverse it to be Oldest -> Newest for the chronological analysis engine
-        return [...pastData].reverse();
+        // Keep as Newest-First to allow hook to flip it once correctly
+        return [...pastData];
     }, [datasetName, itemIndex]);
 
     const rows = useMemo(() => {
@@ -119,7 +116,39 @@ function ItemOne() {
                         <ArrowLeft size={24} />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Week #{parseInt(itemIndex) + 1} Detail</h1>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-2xl font-bold text-gray-800">Week #{parseInt(itemIndex) + 1} Detail</h1>
+                            <div className="flex bg-white rounded-lg border border-gray-200 shadow-sm ml-2">
+                                <button
+                                    onClick={() => {
+                                        const prevIdx = parseInt(itemIndex) + 1;
+                                        if (prevIdx < truestdata.length) {
+                                            const prevNums = truestdata[prevIdx].join('-');
+                                            navigate(`/one/${datasetName}/${prevIdx}/${prevNums}`);
+                                        }
+                                    }}
+                                    disabled={parseInt(itemIndex) >= truestdata.length - 1}
+                                    className="p-1 px-2 hover:bg-gray-50 border-r border-gray-100 disabled:opacity-30 disabled:cursor-not-allowed group transition-colors"
+                                    title="Go to Older Week"
+                                >
+                                    <ChevronLeft size={20} className="text-gray-400 group-hover:text-blue-600" />
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        const nextIdx = parseInt(itemIndex) - 1;
+                                        if (nextIdx >= 0) {
+                                            const nextNums = truestdata[nextIdx].join('-');
+                                            navigate(`/one/${datasetName}/${nextIdx}/${nextNums}`);
+                                        }
+                                    }}
+                                    disabled={parseInt(itemIndex) <= 0}
+                                    className="p-1 px-2 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed group transition-colors"
+                                    title="Go to Newer Week"
+                                >
+                                    <ChevronRight size={20} className="text-gray-400 group-hover:text-blue-600" />
+                                </button>
+                            </div>
+                        </div>
                         <p className="text-sm text-gray-500">Historical analysis using {stats.historySize} past weeks</p>
                     </div>
                 </div>

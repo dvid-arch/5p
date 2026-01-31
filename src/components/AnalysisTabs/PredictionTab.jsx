@@ -1,8 +1,13 @@
 import React from 'react';
-import { TrendingUp, Target, Zap, Shield, ChevronRight } from 'lucide-react';
+import { TrendingUp, Target, Zap, Shield, ChevronRight, Calculator } from 'lucide-react';
 
 const PredictionTab = ({ analysis }) => {
+    const [activeStrategy, setActiveStrategy] = React.useState('banker');
+
     if (!analysis || !analysis.predictions) return null;
+
+    const strategies = analysis.backtest?.strategies || {};
+    const stats = strategies[activeStrategy] || { investment: 0, return: 0, netProfit: 0 };
 
     const { predictions } = analysis;
 
@@ -11,9 +16,25 @@ const PredictionTab = ({ analysis }) => {
             {/* Header Section */}
             <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm">
                 <h3 className="text-2xl font-bold text-gray-800 mb-2">Predictions for Next Week</h3>
-                <p className="text-gray-500">
-                    Advanced ensemble modeling combining Markov transitions, Bayesian inference, and pair synergy.
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <p className="text-gray-500 max-w-lg">
+                        Unified Engine synchronizing **Signal Intelligence** with ensemble models. Now using a **10-Draw Strategic Window** and exhausted gap buffers for institutional reliability.
+                    </p>
+
+                    {/* REASSURANCE: Latest Anchor Draw */}
+                    {analysis.stats?.latestDraw && (
+                        <div className="bg-white border-2 border-blue-600 px-5 py-3 rounded-[2rem] flex items-center gap-4 self-start shadow-xl animate-bounce-subtle">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 leading-none">Latest<br />Anchor</span>
+                            <div className="flex gap-2">
+                                {(analysis.stats.latestDraw.numbers || analysis.stats.latestDraw).map(num => (
+                                    <div key={num} className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-base font-black shadow-lg">
+                                        {num}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -45,17 +66,17 @@ const PredictionTab = ({ analysis }) => {
                                             </div>
                                             <div className="text-right">
                                                 <div className="text-[10px] font-bold text-indigo-300 uppercase tracking-tighter">Prob. Hit</div>
-                                                <div className="text-xl font-black text-indigo-400">{bp.reliability.toFixed(1)}%</div>
+                                                <div className="text-xl font-black text-indigo-400">{bp.reliability?.toFixed(1) || '0.0'}%</div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
                                                 <div
                                                     className="bg-indigo-400 h-full rounded-full shadow-[0_0_8px_rgba(129,140,248,0.5)]"
-                                                    style={{ width: `${bp.reliability}%` }}
+                                                    style={{ width: `${bp.reliability || 0}%` }}
                                                 />
                                             </div>
-                                            <span className="text-[9px] font-black text-indigo-300 uppercase">{bp.confidence}</span>
+                                            <span className="text-[9px] font-black text-indigo-300 uppercase">{bp.confidence || 'Low'}</span>
                                         </div>
                                     </div>
                                 ))}
@@ -198,41 +219,90 @@ const PredictionTab = ({ analysis }) => {
 
                     {/* Model Performance (Backtest) */}
                     {analysis.backtest && (
-                        <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm animate-in slide-in-from-bottom-4 duration-700 delay-200">
-                            <h4 className="text-lg font-bold mb-6 flex items-center gap-2 text-gray-800">
-                                <Target className="text-green-500" size={20} />
-                                12-Week Backtest
-                            </h4>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                    <span className="text-xs font-bold text-gray-500 uppercase">Ensemble Hit Rate</span>
-                                    <span className={`text-lg font-black ${analysis.backtest.ensembleHitRate > 50 ? 'text-green-600' : 'text-gray-900'}`}>
-                                        {(analysis.backtest.ensembleHitRate || 0).toFixed(1)}%
-                                    </span>
-                                </div>
-                                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                    <span className="text-xs font-bold text-gray-500 uppercase">Banker Pair Hit Rate</span>
-                                    <span className={`text-lg font-black ${analysis.backtest.bankerPairHitRate > 30 ? 'text-green-600' : 'text-gray-900'}`}>
-                                        {(analysis.backtest.bankerPairHitRate || 0).toFixed(1)}%
-                                    </span>
-                                </div>
-                                <div className="mt-4 pt-4 border-t border-gray-100">
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase mb-2 text-center">Recent Performance</div>
-                                    <div className="flex justify-center gap-1">
-                                        {analysis.backtest.history.slice(-10).map((h, i) => (
-                                            <div
-                                                key={i}
-                                                className={`w-2 h-8 rounded-full ${h.ensembleHit ? 'bg-green-500' : 'bg-red-200'}`}
-                                                title={`Week ${h.week}: ${h.ensembleHit ? 'Hit' : 'Miss'}`}
-                                            />
-                                        ))}
+                        <>
+                            <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm animate-in slide-in-from-bottom-4 duration-700 delay-200">
+                                <h4 className="text-lg font-bold mb-6 flex items-center gap-2 text-gray-800">
+                                    <Target className="text-green-500" size={20} />
+                                    Strategy Performance Review
+                                </h4>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                        <span className="text-xs font-bold text-gray-500 uppercase">
+                                            {stats.type === 'cycle' ? 'Cycle Success Rate' : 'Strategy Success Rate'}
+                                        </span>
+                                        <span className={`text-lg font-black ${stats.successRate > 50 ? 'text-green-600' : 'text-gray-900'}`}>
+                                            {(stats.successRate || 0).toFixed(1)}%
+                                        </span>
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-gray-100 italic text-[10px] text-gray-400 text-center">
+                                        Performance data based on {stats.totalBets} simulated {stats.type === 'cycle' ? 'chase cycles' : 'bets'}
                                     </div>
                                 </div>
-                                <p className="text-[9px] text-gray-400 text-center mt-2 leading-relaxed">
-                                    * Hit Rate = % of weeks where Top 5 Bankers or Top 1 Pair contained at least one winning number.
-                                </p>
                             </div>
-                        </div>
+
+                            {/* Strategy Selector */}
+                            <div className="flex bg-gray-100 p-1 rounded-2xl gap-1">
+                                {['banker', 'chase', 'singles'].map((s) => (
+                                    <button
+                                        key={s}
+                                        onClick={() => setActiveStrategy(s)}
+                                        className={`flex-1 py-2 text-[10px] font-bold rounded-xl transition-all ${activeStrategy === s
+                                            ? 'bg-indigo-600 text-white shadow-md'
+                                            : 'text-gray-500 hover:bg-gray-200'
+                                            }`}
+                                    >
+                                        {s === 'banker' ? 'BANKER' : s === 'chase' ? 'PAIRS CHASE' : 'SINGLES'}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Profitability Tracker */}
+                            <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-3xl p-6 text-white shadow-xl border border-white/10 animate-in slide-in-from-bottom-4 duration-1000">
+                                <h4 className="text-lg font-bold mb-4 flex items-center gap-2">
+                                    <Calculator className="text-indigo-400" size={20} />
+                                    {stats.name} ROI
+                                </h4>
+                                <p className="text-[10px] text-indigo-300/60 mb-6 uppercase tracking-widest font-bold">
+                                    {stats.type === 'cycle' ? '5-Week Chase Window' : 'Selective Play'} | $3.33 Odds
+                                </p>
+
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-2xl border border-white/5">
+                                        <span className="text-xs text-white/60">
+                                            {stats.type === 'cycle' ? 'Total Cycles' : 'Bets Placed'}
+                                        </span>
+                                        <span className="font-mono font-bold">{stats.totalBets}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-2xl border border-white/5">
+                                        <span className="text-xs text-white/60">Total Investment</span>
+                                        <span className="font-mono font-bold">${stats.investment.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-2xl border border-white/5">
+                                        <span className="text-xs text-white/60">Total Returns</span>
+                                        <span className="font-mono font-bold text-green-400">${stats.return.toLocaleString()}</span>
+                                    </div>
+                                    <div className="pt-2">
+                                        <div className="flex justify-between items-center px-3 mb-2">
+                                            <span className="text-sm font-bold">Net Profit</span>
+                                            <span className={`text-xl font-black ${stats.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                {stats.netProfit >= 0 ? '+' : ''}${stats.netProfit.toLocaleString()}
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                                            <div
+                                                className={`h-full rounded-full ${stats.netProfit >= 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                                                style={{ width: `${Math.min(100, (stats.return / (stats.investment || 1)) * 50)}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <p className="text-[8px] text-white/30 text-center leading-tight">
+                                        {stats.type === 'cycle'
+                                            ? '* A "Cycle" ends on a win or after 5 iterations. Failure results in cumulative loss of all 5 weeks.'
+                                            : '* ROI assumes fixed $1,000 stake per played week with 3.33x payout per hit.'}
+                                    </p>
+                                </div>
+                            </div>
+                        </>
                     )}
                 </div>
             </div>

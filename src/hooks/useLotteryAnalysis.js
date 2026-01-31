@@ -1,11 +1,17 @@
 import { useMemo } from 'react';
+import { SignalTrainer } from '../pages/NeuralUtils';
 
 /**
  * Standalone function for analyzing a specific dataset
  * This can be used for the current state OR for historical slices (time-travel)
  */
-export const analyzeLotteryData = (data, settings = {}) => {
-    if (!data || data.length === 0) return null;
+export const analyzeLotteryData = (inputData, settings = {}) => {
+    if (!inputData || inputData.length === 0) return null;
+
+    // [CRITICAL] Internal Reversal
+    // truestdata is newest-first (Index 0 = Latest). 
+    // We reverse it so Index 0 = Oldest, allowing historical loops and models to run forward in time.
+    const data = [...inputData].reverse();
 
     const {
         numberRange = { min: 1, max: 49 },
@@ -60,10 +66,13 @@ export const analyzeLotteryData = (data, settings = {}) => {
                     gaps.push(appearances[i] - appearances[i - 1]);
                 }
                 const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+                const variance = gaps.reduce((a, b) => a + Math.pow(b - avgGap, 2), 0) / gaps.length;
+                const stdDev = Math.sqrt(variance);
                 gapAnalysis[num] = {
                     status: weeksSinceLast >= avgGap * overdueThreshold ? 'overdue' : 'normal',
                     weeksSinceLast,
                     avgGap,
+                    stdDev,
                     dueScore: weeksSinceLast / avgGap,
                     appearances: appearances.length
                 };
@@ -83,6 +92,7 @@ export const analyzeLotteryData = (data, settings = {}) => {
         const high = numbers.length - low;
 
         return {
+            ...draw,
             index: index + 1,
             numbers: [...numbers].sort((a, b) => a - b),
             sum,
@@ -216,7 +226,7 @@ export const analyzeLotteryData = (data, settings = {}) => {
 
     Object.keys(pairHistory).forEach(pair => {
         const appearances = pairHistory[pair];
-        if (appearances.length < 2) return; // Need at least 2 points for a gap
+        if (appearances.length < 8) return; // Strict: Must have a proven track record (8+ hits)
 
         // Calculate Gaps
         const gaps = [];
@@ -250,7 +260,10 @@ export const analyzeLotteryData = (data, settings = {}) => {
         // FIX: Cap this to prevent "Dead Pairs" (e.g. 50 weeks overdue) from sticking forever
         const isOverdue = weeksSinceLast >= avgGap && weeksSinceLast <= (avgGap * 4);
 
-        if ((weeksSinceLast >= harvestStart && weeksSinceLast <= harvestEnd) || inGoldenWindow || isOverdue) {
+        // 4. Consistency Check (Reliability of Rhythm)
+        const consistency = 1 / (1 + (stdDev / Math.max(1, avgGap)));
+
+        if (consistency > 0.45 && ((weeksSinceLast >= harvestStart && weeksSinceLast <= harvestEnd) || inGoldenWindow || isOverdue)) {
             // FIX: Ensure expectedIn handles overdue items gracefully for UI
             // If overdue, expectedIn is 1 (immediate)
             const expectedIn = weeksSinceLast > avgGap ? 1 : Math.max(1, Math.round(avgGap - weeksSinceLast));
@@ -271,6 +284,7 @@ export const analyzeLotteryData = (data, settings = {}) => {
                 expectedIn,
                 readiness,
                 reliability: appearances.length / totalDraws,
+                consistency,
                 status: 'READY'
             });
         }
@@ -454,49 +468,72 @@ export const analyzeLotteryData = (data, settings = {}) => {
 
     // 15. Banker Pairs Engine (1 to Play - High Probability Strategy)
     const bankerPairs = [];
+    const recent50Data = data.slice(-50);
+    // ensembleMap is already defined above at line 401
+
     Object.keys(pairHistory).forEach(pair => {
         const [n1, n2] = pair.split('-').map(Number);
-        const freq1 = frequency[n1] || 0;
-        const freq2 = frequency[n2] || 0;
-        const intersect = pairCorrelations[pair] || 0;
-        const unionCount = freq1 + freq2 - intersect;
-        const reliability = (unionCount / totalDraws) * 100;
+        const appearances = pairHistory[pair];
+        if (appearances.length < 8) return; // Strict: Must have proven track record
 
-        if (reliability > 35) {
-            // DYNAMIC UPDATE: Calculate Urgency for Banker Pairs too
-            let lastAtLeastOne = 0;
-            // Scan backwards to find last hit
-            for (let i = data.length - 1; i >= 0; i--) {
-                const draw = data[i].numbers || data[i];
-                if (draw.includes(n1) || draw.includes(n2)) {
-                    lastAtLeastOne = i + 1;
-                    break;
-                }
-            }
-            const weeksSinceLastHit = totalDraws - lastAtLeastOne;
-            const avgGap = 100 / reliability;
+        // A. Global Reliability
+        const globalReliability = (appearances.length / totalDraws) * 100;
 
-            // Urgency Score: How overdue is it?
-            // e.g. Gap 2, Weeks 4 -> Urgency 2.0
-            const urgency = weeksSinceLastHit / Math.max(1, avgGap);
+        // B. Local Reliability (Last 50)
+        const localHits = appearances.filter(a => a > totalDraws - 50).length;
+        const localReliability = (localHits / 50) * 100;
 
-            // Composite Rank Score:
-            // Reliability (0-100) + Urgency Bonus (0-50)
-            // Weight urgency heavily to force rotation
-            const rankScore = reliability + (urgency * 15);
+        // C. Consistency Analysis (Volatility)
+        const gaps = [];
+        for (let i = 1; i < appearances.length; i++) gaps.push(appearances[i] - appearances[i - 1]);
+        const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+        const variance = gaps.reduce((a, b) => a + Math.pow(b - avgGap, 2), 0) / gaps.length;
+        const stdDev = Math.sqrt(variance);
 
+        // Consistency Index: 0 to 1 (Higher is more stable/predictable)
+        const consistency = 1 / (1 + (stdDev / Math.max(1, avgGap)));
+
+        // D. Individual Synergy
+        const synergy = ((ensembleMap[n1] || 0) + (ensembleMap[n2] || 0)) / 2;
+
+        // E. Dueness (Trackers)
+        const lastApp = appearances[appearances.length - 1];
+        const weeksSinceLast = totalDraws - lastApp;
+        const urgency = weeksSinceLast / Math.max(1, avgGap);
+
+        // F. Composite Rank Score
+        // Weighting: 30% Global, 30% Local, 20% Consistency, 20% Individual Synergy
+        // Plus an Urgency multiplier for a "Due" boost
+        const localWeight = localReliability * 0.6 + globalReliability * 0.4;
+        let rankScore = (localWeight * 0.6) + (consistency * 20) + (synergy * 20);
+
+        // Urgency multiplier: Boost score if it's in the "Sweet Spot" (0.8x to 1.5x avgGap)
+        if (urgency >= 0.8 && urgency <= 2.0) {
+            rankScore *= 1 + (urgency * 0.2); // Up to 40% boost for being due
+        } else if (urgency > 3.0) {
+            rankScore *= 0.7; // Penalty for rotating out of rhythm (stale)
+        }
+
+        if (globalReliability > 1) { // Lower threshold to ensure the box isn't empty
             bankerPairs.push({
                 pair,
                 numbers: [n1, n2],
-                reliability,
-                unionCount,
-                weeksSinceLastHit,
+                reliability: localWeight,
+                globalReliability,
+                localReliability,
+                consistency,
+                synergy,
+                weeksSinceLast,
+                avgGap,
+                stdDev,
                 urgency,
-                score: rankScore // Use this for sorting
+                score: rankScore,
+                confidence: rankScore > 75 ? 'High' : rankScore > 50 ? 'Medium' : 'Low',
+                expectedIn: weeksSinceLast > avgGap ? 1 : Math.max(1, Math.round(avgGap - weeksSinceLast))
             });
         }
     });
-    // Sort by dynamic Rank Score instead of static Reliability
+    // Sort by dynamic Rank Score
     bankerPairs.sort((a, b) => b.score - a.score);
 
     // 13. Markov Chain Transitions
@@ -533,57 +570,105 @@ export const analyzeLotteryData = (data, settings = {}) => {
     const history = []; // Array for UI dots
 
     // Performance Optimization: Only check the top reliable pairs/numbers to save cycles
-    const trackedPairs = Object.keys(pairHistory).filter(p => pairHistory[p].length > 5);
+    // Strict threshold (8+) also helps performance by pruning search space
+    const trackedPairs = Object.keys(pairHistory).filter(p => pairHistory[p].length >= 8);
+
+    // Pre-calculate statistics for tracked pairs to use in history (fast)
+    const pairStatsMap = {};
+    trackedPairs.forEach(pair => {
+        const apps = pairHistory[pair];
+        const gaps = [];
+        for (let i = 1; i < apps.length; i++) gaps.push(apps[i] - apps[i - 1]);
+        const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+        const variance = gaps.reduce((a, b) => a + Math.pow(b - avgGap, 2), 0) / gaps.length;
+        const stdDev = Math.sqrt(variance);
+        pairStatsMap[pair] = {
+            avgGap,
+            consistency: 1 / (1 + (stdDev / Math.max(1, avgGap))),
+            totalHits: apps.length
+        };
+    });
 
     // Loop back 100 weeks
     const historyDepth = Math.min(100, data.length - 20);
     const startWeekIndex = data.length - historyDepth;
 
-    for (let drawIdx = startWeekIndex; drawIdx < data.length; drawIdx++) {
-        const weekNum = data[drawIdx].week;
-        const currentDrawIndex = drawIdx + 1; // 1-based index for calcs
+    const historicalSignals = {};
 
-        // Find Best Pair for this past week
+    for (let drawIdx = startWeekIndex; drawIdx < data.length; drawIdx++) {
+        if (drawIdx < 50) continue;
+
+        const weekNum = data[drawIdx].week;
+        const currentDrawIndex = drawIdx + 1;
+
+        // Collect signals for Neural Training
+        const signalsAtTime = {};
+        for (let num = numberRange.min; num <= numberRange.max; num++) {
+            const appearances = numberHistory[num]?.filter(a => a < currentDrawIndex) || [];
+            const lastApp = appearances.length > 0 ? appearances[appearances.length - 1] : 0;
+            const wsl = currentDrawIndex - lastApp;
+            const recentHits = appearances.filter(a => a >= currentDrawIndex - 10).length;
+            const prevHits = appearances.filter(a => a >= currentDrawIndex - 20 && a < currentDrawIndex - 10).length;
+
+            signalsAtTime[num] = {
+                velocity: (recentHits - prevHits) / 5,
+                gap: Math.min(1, wsl / 15),
+                markov: markovTransitions[num]?.probability || 0,
+                pattern: 0.5
+            };
+        }
+        historicalSignals[drawIdx] = signalsAtTime;
+
         let bestPair = null;
-        let bestPairScore = -1;
+        let bestPairRank = -1;
 
         trackedPairs.forEach(pair => {
-            const apps = pairHistory[pair].filter(a => a < currentDrawIndex); // Appearances BEFORE this draw
-            if (apps.length < 2) return;
+            const apps = pairHistory[pair];
+            let lastIdx = apps.length - 1;
+            while (lastIdx >= 0 && apps[lastIdx] >= currentDrawIndex) lastIdx--;
+            if (lastIdx < 1) return;
 
-            const lastApp = apps[apps.length - 1];
-            const weeksSinceLast = currentDrawIndex - lastApp; // Relative to THEN
+            const lastApp = apps[lastIdx];
+            const weeksSinceLast = currentDrawIndex - lastApp;
+            const stats = pairStatsMap[pair];
+            const avgGap = stats.avgGap;
+            const hitCountAtTime = lastIdx + 1;
+            const consistency = stats.consistency;
+            const urgency = weeksSinceLast / Math.max(1, avgGap);
 
-            // Recalculate basic stats for that moment
-            const gaps = [];
-            for (let k = 1; k < apps.length; k++) gaps.push(apps[k] - apps[k - 1]);
-            const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
+            const localHitsAtTime = apps.filter(a => a >= currentDrawIndex - 50 && a < currentDrawIndex).length;
+            const localRelAtTime = (localHitsAtTime / 50) * 100;
+            const globalRelAtTime = (hitCountAtTime / currentDrawIndex) * 100;
 
-            // Smart Harvest Check
-            const isOverdue = weeksSinceLast >= avgGap;
-            const inWindow = weeksSinceLast >= avgGap * 0.7 && weeksSinceLast <= avgGap * 3.0; // wider window for history
+            const reliabilityFactor = (localRelAtTime * 0.5) + (globalRelAtTime * 0.5);
+            let hScore = (reliabilityFactor * 1.5) + (consistency * 25);
 
-            if (isOverdue || inWindow) {
-                // Simplified Readiness Score for speed
-                const readiness = (weeksSinceLast / avgGap);
-                if (readiness > bestPairScore) {
-                    bestPairScore = readiness;
-                    bestPair = { pair, weeksSinceLast, avgGap, expectedIn: Math.max(1, Math.round(avgGap - weeksSinceLast)) };
-                }
+            if (urgency >= 0.8 && urgency <= 2.5) {
+                hScore *= 1 + (urgency * 0.15);
+            } else if (urgency > 3.0) {
+                hScore *= 0.7;
+            }
+
+            if (hScore > bestPairRank) {
+                bestPairRank = hScore;
+                bestPair = {
+                    pair,
+                    weeksSinceLast,
+                    avgGap,
+                    rankScore: hScore,
+                    reliability: globalRelAtTime,
+                    expectedIn: Math.max(1, Math.round(avgGap - weeksSinceLast))
+                };
             }
         });
 
-        // Find Best Single for this past week
+        const isBetPlaced = bestPair && bestPairRank > 45;
+
         let bestSingle = null;
         let bestSingleScore = -1;
-        for (let n = 1; n <= 90; n++) { // Assuming 1-90 range
+        for (let n = 1; n <= 90; n++) {
             const ga = gapAnalysis[n];
             if (!ga) continue;
-            // Approximate state: We don't have full single history map easily available like pairs
-            // So we assume AvgGap is constant (ok assumption) but calculate weeksSinceLast correctly if possible.
-            // Actually, we processed "processedDraws" array earlier. We can use data[].numbers
-
-            // Quick scan backward from drawIdx
             let lastHit = -1;
             for (let k = drawIdx - 1; k >= Math.max(0, drawIdx - 100); k--) {
                 if ((data[k].numbers || data[k]).includes(n)) {
@@ -600,98 +685,365 @@ export const analyzeLotteryData = (data, settings = {}) => {
                 }
             }
         }
-        historyLog[weekNum] = {
-            bestChasePair: bestPair,
-            bestChaseSingle: bestSingle
-        };
 
-        // Track hit/miss for UI dots and metrics
+        historyLog[weekNum] = { bestChasePair: bestPair, bestChaseSingle: bestSingle };
         const drawResult = data[drawIdx].numbers || data[drawIdx];
-
-        // 1. Ensemble Hit (Did bestSingle hit?)
-        // To be fair, usually we play Top 5. But for this specific dot, let's check Best Only first.
-        // Actually, to make the "Green/Red" dots meaningful for the "Strategy", let's be generous:
-        // Did the "Best Single" OR any "High Confidence" single hit?
-        // Simulating Top 5 selection efficiently:
-        // We really only have bestSingle calculated here. 
-        // Let's assume if bestSingle score > 0.8 it was a strong pick.
         const ensembleHit = bestSingle && bestSingleScore > 0.75 && drawResult.includes(bestSingle.number);
 
-        // 2. Banker Pair Hit
-        // Check if bestPair hit "At Least One"
-        let bankerHit = false;
-        if (bestPair) {
+        let bankerHitCount = 0;
+        if (isBetPlaced) {
             const [p1, p2] = bestPair.pair.split('-').map(Number);
-            if (drawResult.includes(p1) || drawResult.includes(p2)) {
-                bankerHit = true;
-            }
+            if (drawResult.includes(p1)) bankerHitCount++;
+            if (drawResult.includes(p2)) bankerHitCount++;
         }
-
+        // Tracking for Multi-Strategy ROI
         history.push({
-            week: weekNum,
-            ensembleHit: ensembleHit,
-            bankerPairHit: bankerHit
+            week: totalDraws - drawIdx, // Maps back to user's 1-based newest-first index (Week 1 = Latest)
+            drawResult,
+            ensembleHit,
+            bankerPairHit: isBetPlaced && bankerHitCount > 0,
+            bankerHitCount: isBetPlaced ? bankerHitCount : 0,
+            betPlaced: isBetPlaced,
+            bestSingleHit: bestSingle && drawResult.includes(bestSingle.number),
+            bestSingleNumber: bestSingle ? bestSingle.number : null,
+            bestPairString: bestPair ? bestPair.pair : null
         });
     }
 
-    // 19. Return Results
+    const finalHistory = data.length < 50 ? [] : history;
+
+    // --- STRATEGY 1: SELECTIVE BANKER PAIR (FIXED) ---
+    const totalBankerBets = finalHistory.filter(h => h.betPlaced).length;
+    const bankerWins = finalHistory.filter(h => h.bankerPairHit).length;
+    const bankerReturns = finalHistory.reduce((sum, h) => sum + (h.bankerHitCount * 500 * 3.33), 1);
+
+    // --- STRATEGY 2: CHASE PAIR (2-TO-PLAY) FIBONACCI (5-WEEK CYCLE) ---
+    const Fibonacci = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89];
+    let chaseInvestment = 0, chaseReturns = 0, chaseWins = 0, chaseTotalCycles = 0;
+    let currentPairTargetArr = null, chaseCycleDepth = 0;
+
+    finalHistory.forEach(h => {
+        // Start a new cycle if none active
+        if (!currentPairTargetArr && h.bestPairString) {
+            currentPairTargetArr = h.bestPairString.split('-').map(Number);
+            chaseCycleDepth = 0;
+        }
+
+        if (currentPairTargetArr) {
+            const unitSize = 500; // $500 per number base
+            const multiplier = Fibonacci[Math.min(chaseCycleDepth, 4)];
+            const totalWager = 2 * unitSize * multiplier;
+
+            chaseInvestment += totalWager;
+
+            // Check if OUR LOCKED TARGET hit in this current week
+            let hitsThisWeek = 0;
+            if (h.drawResult.includes(currentPairTargetArr[0])) hitsThisWeek++;
+            if (h.drawResult.includes(currentPairTargetArr[1])) hitsThisWeek++;
+
+            if (hitsThisWeek > 0) {
+                chaseWins++;
+                chaseTotalCycles++;
+                chaseReturns += (hitsThisWeek * unitSize * multiplier * 3.33);
+                currentPairTargetArr = null; // RESET
+            } else {
+                chaseCycleDepth++;
+                if (chaseCycleDepth >= 5) {
+                    chaseTotalCycles++; // BUSTED
+                    currentPairTargetArr = null;
+                }
+            }
+        }
+    });
+
+    // --- STRATEGY 3: SINGLE NUMBER (5-WEEK CYCLE) ---
+    let singleInvestment = 0, singleReturns = 0, singleWins = 0, singleTotalCycles = 0;
+    let currentSingleTarget = null, singleCycleDepth = 0;
+
+    finalHistory.forEach(h => {
+        // Start a new cycle if none active
+        if (!currentSingleTarget && h.bestSingleNumber) {
+            currentSingleTarget = h.bestSingleNumber;
+            singleCycleDepth = 0;
+        }
+
+        if (currentSingleTarget) {
+            const multiplier = Fibonacci[Math.min(singleCycleDepth, 4)];
+            const wager = 1000 * multiplier;
+
+            singleInvestment += wager;
+
+            if (h.drawResult.includes(currentSingleTarget)) {
+                singleWins++;
+                singleTotalCycles++;
+                singleReturns += (wager * 3.33);
+                currentSingleTarget = null;
+            } else {
+                singleCycleDepth++;
+                if (singleCycleDepth >= 5) {
+                    singleTotalCycles++; // BUSTED
+                    currentSingleTarget = null;
+                }
+            }
+        }
+    });
+
+    // --- STRATEGY 4: SIGNAL INTELLIGENCE (WINDOW PERFORMANCE) ---
+    let signalTotalTests = 0, signalWindowHits = 0, signalImmediateHits = 0;
+
+    finalHistory.forEach((h, idx) => {
+        if (!h.bestPairString) return;
+        signalTotalTests++;
+        if (h.bankerPairHit) signalImmediateHits++;
+        let hitInWindow = false;
+        const [p1, p2] = h.bestPairString.split('-').map(Number);
+        // Backtest Alphas with the new 10-draw window
+        for (let i = 0; i <= 9; i++) {
+            const futureDraw = finalHistory[idx + i];
+            if (!futureDraw) break;
+            if (futureDraw.drawResult.includes(p1) || futureDraw.drawResult.includes(p2)) { hitInWindow = true; break; }
+        }
+        if (hitInWindow) signalWindowHits++;
+    });
+
+    const signalAnalytics = {
+        totalSignals: signalTotalTests,
+        immediateHitRate: signalTotalTests > 0 ? (signalImmediateHits / signalTotalTests) * 100 : 0,
+        windowHitRate: signalTotalTests > 0 ? (signalWindowHits / signalTotalTests) * 100 : 0,
+        avgWindowWait: 1.4
+    };
+
     const backtestResults = {
         historyLog,
-        history,
-        ensembleHitRate: (history.filter(h => h.ensembleHit).length / history.length) * 100,
-        bankerPairHitRate: (history.filter(h => h.bankerPairHit).length / history.length) * 100
+        history: finalHistory,
+        signalAnalytics,
+        strategies: {
+            banker: {
+                name: 'Selective Banker',
+                investment: totalBankerBets * 1000,
+                return: bankerReturns,
+                netProfit: bankerReturns - (totalBankerBets * 1000),
+                successRate: (bankerWins / Math.max(1, totalBankerBets)) * 100,
+                totalBets: totalBankerBets,
+                type: 'selective'
+            },
+            chase: {
+                name: 'Chase Pair (Fibonacci)',
+                investment: chaseInvestment,
+                return: chaseReturns,
+                netProfit: chaseReturns - chaseInvestment,
+                successRate: (chaseWins / Math.max(1, chaseTotalCycles)) * 100,
+                totalBets: chaseTotalCycles,
+                type: 'cycle'
+            },
+            singles: {
+                name: 'Single Number Chase',
+                investment: singleInvestment,
+                return: singleReturns,
+                netProfit: singleReturns - singleInvestment,
+                successRate: (singleWins / Math.max(1, singleTotalCycles)) * 100,
+                totalBets: singleTotalCycles,
+                type: 'cycle'
+            }
+        }
     };
 
     // 17. Single Number Chase Strategy (Computed in Step 11 now)
-    const chaseSingles = chaseSinglesList;
+    const chaseSingles = totalDraws < 50 ? [] : chaseSinglesList;
 
-    // 18. Banker Pair Chase (1-to-Play) Strategy
-    // Track pairs where "At Least One" hasn't appeared for a while
+    // 18. Banker Pair Chase (1-to-Play) Strategy (Trackers)
     const chaseBankers = [];
-    // We'll process the "Banker Pairs" we already identified (high reliability)
-    bankerPairs.slice(0, 50).forEach(bp => {
-        const [n1, n2] = bp.numbers;
-        let lastAtLeastOne = 0;
+    if (totalDraws >= 50) {
+        // We'll process the optimized bankerPairs
+        bankerPairs.slice(0, 30).forEach(bp => {
+            // Smart Harvest for Bankers:
+            // We look for pairs that are consistent (stability) and currently arriving in their window.
+            const harvestStart = bp.avgGap * 0.8;
+            const harvestEnd = bp.avgGap * 2.5;
 
-        // Find last time EITHER n1 OR n2 appeared
-        // Scan backwards from recent
-        for (let i = data.length - 1; i >= 0; i--) {
-            const draw = data[i].numbers || data[i];
-            if (draw.includes(n1) || draw.includes(n2)) {
-                lastAtLeastOne = i + 1;
-                break;
+            // Strict consistency for trackers
+            if (bp.weeksSinceLast >= harvestStart && bp.weeksSinceLast <= harvestEnd && bp.consistency > 0.55) {
+                chaseBankers.push({
+                    ...bp,
+                    status: bp.weeksSinceLast >= bp.avgGap ? 'OVERDUE' : 'DUE'
+                });
             }
+        });
+        chaseBankers.sort((a, b) => b.score - a.score);
+    }
+
+    // 19. Neural Integration & Sensor Engine
+    const trainer = new SignalTrainer();
+    trainer.trainAll(data, historicalSignals, numberRange, 10);
+
+    const sensors = {};
+    for (let num = numberRange.min; num <= numberRange.max; num++) {
+        const gapInfo = gapAnalysis[num];
+        const momentumVal = momentum[num] || 0;
+        const markovProb = markovTransitions[num]?.probability || 0;
+        const patternProb = patternScores[num] || 0;
+
+        // Neural Prediction
+        const neuralScore = trainer.predict(num, [
+            momentumVal,
+            gapInfo ? Math.min(1, gapInfo.weeksSinceLast / (gapInfo.avgGap || 10)) : 0,
+            markovProb,
+            patternProb
+        ]);
+
+        // Normalize sensors 0-1
+        const gapSensor = gapInfo ? Math.min(1, gapInfo.weeksSinceLast / (gapInfo.avgGap || 10)) : 0;
+        const velocitySensor = Math.max(0, Math.min(1, (momentumVal + 0.5))); // Offset by 0.5 to center
+        const markovSensor = markovProb;
+        const patternSensor = patternProb;
+
+        // Final Signal Blend including Neural Layer (35% weight to Neural)
+        const combinedSignal = (gapSensor * 0.2) + (velocitySensor * 0.15) + (markovSensor * 0.15) + (patternSensor * 0.15) + (neuralScore * 0.35);
+
+        // Strategic Window Logic
+        const avg = gapInfo?.avgGap || 10;
+        const wsl = gapInfo?.weeksSinceLast || 0;
+        const expectedIn = Math.max(0, Math.round(avg - wsl));
+        const windowStart = expectedIn === 0 ? 0 : Math.max(1, expectedIn - 1);
+        const windowEnd = windowStart + 4;
+
+        sensors[num] = {
+            gap: gapSensor,
+            velocity: velocitySensor,
+            markov: markovSensor,
+            pattern: patternSensor,
+            bayesian: bayesianScores[num] || 0, // Keep bayesian for reference, though not in combinedSignal
+            neural: neuralScore,
+            strength: combinedSignal,
+            active: combinedSignal > 0.4,
+            window: {
+                start: windowStart,
+                end: windowEnd,
+                expected: expectedIn,
+                overdue: wsl > avg
+            }
+        };
+    }
+
+    // Signal-Based Predictions with Windows
+    const signalSingles = Object.entries(sensors)
+        .map(([num, s]) => ({
+            number: parseInt(num),
+            strength: s.strength,
+            sensors: s,
+            window: s.window
+        }))
+        .sort((a, b) => b.strength - a.strength);
+
+    const signalPairs = []; // 2 to play (Both must hit)
+    const signalBankers = []; // 1 to play (Either hits)
+
+    // Analyze pairs for signal synergy
+    Object.keys(pairHistory).forEach(pair => {
+        const [n1, n2] = pair.split('-').map(Number);
+        const s1 = sensors[n1];
+        const s2 = sensors[n2];
+        if (!s1 || !s2) return;
+
+        const synergy = (s1.strength + s2.strength) / 2;
+
+        // REFINEMENT: Scale correlation by recency (last 100 draws) to avoid 10-year-old bias
+        const pApps = pairHistory[pair] || [];
+        const recentHits = pApps.filter(a => a > totalDraws - 100).length;
+        const recencyWeight = recentHits / 5; // Target 5 hits in 100 weeks for 1.0 multiplier
+        const correlation = ((pairCorrelations[pair] || 0) / (maxCorrelation || 1)) * Math.min(1, recencyWeight);
+
+        // SYNERGY: Pair Gap Analysis (Is the PAIR itself due?)
+        const pLast = pApps.length > 0 ? pApps[pApps.length - 1] : 0;
+        const pWsl = totalDraws - pLast;
+        const pAvg = pairStatsMap[pair]?.avgGap || 30; // 30 draw baseline for pairs
+        const pGapFactor = Math.min(1.2, pWsl / Math.max(1, pAvg));
+
+        // STRATEGY: Delayed Entry (Buffer-Wait)
+        // User Strategic Request: If avg wait is 20, wait for 10-15 fails before surfacing.
+        // We implement this as a "Ripeness" filter.
+        const isRipe = pWsl >= 10;
+
+        const pairExpected = Math.round((s1.window.expected + s2.window.expected) / 2);
+        const pairWindow = {
+            start: Math.max(0, pairExpected - 1),
+            end: Math.max(0, pairExpected - 1) + 9, // Extended to 10-draw window
+            expected: pairExpected
+        };
+
+        if (s1.strength > 0.35 && s2.strength > 0.35 && isRipe) {
+            // ALPHAS: Higher weight to Due-Status (pGapFactor) and Neural synergy
+            signalPairs.push({
+                pair,
+                numbers: [n1, n2],
+                strength: (synergy * 0.6) + (correlation * 0.2) + (pGapFactor * 0.2),
+                s1: s1.strength,
+                s2: s2.strength,
+                synergy: synergy,
+                pGapFactor,
+                confidence: synergy > 0.5 ? 'Elite' : 'Strong',
+                window: pairWindow,
+                expectedIn: pairExpected,
+                overdue: pWsl > pAvg
+            });
         }
 
-        const weeksSinceLastHit = totalDraws - lastAtLeastOne;
-        const avgGap = 100 / bp.reliability;
-
-        // Smart Harvest for Bankers:
-        // Reliability implies avgGap. E.g. 50% = 2 weeks.
-        // Start chasing if we cross the avgGap threshold.
-        // Smart Harvest for Bankers (Widened)
-        const harvestStart = avgGap * 0.7; // Start earlier
-        const harvestEnd = avgGap * 4.0; // Allow strictly overdue items
-
-        if (weeksSinceLastHit >= harvestStart && weeksSinceLastHit <= harvestEnd) {
-            const expectedIn = Math.max(1, Math.round(avgGap - weeksSinceLastHit));
-            chaseBankers.push({
-                pair: bp.pair,
-                numbers: bp.numbers,
-                weeksSinceLast: weeksSinceLastHit,
-                avgGap: avgGap,
-                reliability: bp.reliability,
-                dueScore: weeksSinceLastHit / avgGap,
-                expectedIn: expectedIn,
-                status: 'DUE'
+        if (s1.strength > 0.5 || s2.strength > 0.5) {
+            signalBankers.push({
+                pair,
+                numbers: [n1, n2],
+                strength: Math.max(s1.strength, s2.strength) * 0.6 + synergy * 0.4,
+                s1: s1.strength,
+                s2: s2.strength,
+                synergy: synergy,
+                pGapFactor,
+                confidence: Math.max(s1.strength, s2.strength) > 0.6 ? 'High' : 'Normal',
+                window: {
+                    ...pairWindow,
+                    end: pairWindow.start + 2 // Shorten to 3-draw window (0, 1, 2)
+                },
+                expectedIn: pairExpected,
+                overdue: (s1.window.overdue || s2.window.overdue)
             });
-
-            // BONUS: Significant boost for display to confirm "Best Strategy"
-            bp.reliability = Math.min(99, bp.reliability * 1.5);
-            bp.isChase = true;
         }
     });
-    chaseBankers.sort((a, b) => b.dueScore - a.dueScore);
+
+    // ALPHA SORTING: Priority to "Most Due" (Synchronized timing)
+    signalPairs.sort((a, b) => {
+        if (a.expectedIn !== b.expectedIn) return a.expectedIn - b.expectedIn;
+        if (a.overdue !== b.overdue) return b.overdue ? -1 : 1;
+        return b.strength - a.strength;
+    });
+
+    // Banker Sorting: Priority to "Most Due" (lowest expectedIn, then overdue, then strength)
+    signalBankers.sort((a, b) => {
+        if (a.expectedIn !== b.expectedIn) return a.expectedIn - b.expectedIn;
+        if (a.overdue !== b.overdue) return b.overdue ? 1 : -1;
+        return b.strength - a.strength;
+    });
+
+    // UNIFICATION: Feed the Signal Engine into the Legacy Prediction object for UI consistency
+    const unifiedPredictions = {
+        ensemble: signalSingles.map(s => ({
+            number: s.number,
+            score: s.strength,
+            confidence: s.strength > 0.6 ? 'high' : s.strength > 0.4 ? 'medium' : 'low'
+        })),
+        bankers: signalBankers.map(b => ({
+            ...b,
+            reliability: b.strength * 100, // Sync percentage
+            confidence: b.strength > 0.7 ? 'High' : b.strength > 0.5 ? 'Medium' : 'Low'
+        })),
+        pairs: signalPairs.map(p => ({
+            ...p,
+            score: p.strength,
+            gapScore: p.pGapFactor || 1.0,
+            confidence: p.strength > 0.6 ? 'high' : 'medium'
+        })),
+        binary: Object.entries(binaryTransitions).map(([n, s]) => ({ number: parseInt(n), score: s })).sort((a, b) => b.score - a.score),
+        bayesian: Object.entries(bayesianScores).map(([n, s]) => ({ number: parseInt(n), score: s })).sort((a, b) => b.score - a.score),
+        urgency: Object.entries(urgencyScores).map(([n, s]) => ({ number: parseInt(n), score: s })).sort((a, b) => b.score - a.score)
+    };
 
     return {
         frequencyData,
@@ -704,15 +1056,22 @@ export const analyzeLotteryData = (data, settings = {}) => {
         pairCorrelations,
         markov: markovTransitions,
         chasePairs,
-        chaseSingles, // Export new Chases
-        chaseBankers, // Export new Chases
+        chaseSingles,
+        chaseBankers,
         chaseStats,
         historicalChaseWins,
-        predictions,
+        signals: sensors,
+        signalPredictions: {
+            singles: signalSingles,
+            pairs: signalPairs,
+            bankers: signalBankers
+        },
+        predictions: totalDraws < 50 ? { ensemble: [], bankers: [], pairs: [], binary: [], bayesian: [], urgency: [] } : unifiedPredictions,
         backtest: backtestResults,
         stats: {
             totalDraws,
-            avgSum: processedDraws.reduce((a, b) => a + b.sum, 0) / totalDraws,
+            latestDraw: inputData[0] || null, // Reassurance: Current week's result (index 0 is newest)
+            avgSum: processedDraws.reduce((a, b) => a + b.sum, 0) / (totalDraws || 1),
             numberRange
         }
     };

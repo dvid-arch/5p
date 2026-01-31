@@ -26,7 +26,7 @@ ChartJS.register(
 );
 
 // --- Raw Data: An array of number arrays ---
-const rawCombinations = truestdata.reverse();
+const rawCombinations = [...truestdata].reverse();
 
 // --- Analysis Helper Functions (Unchanged) ---
 const getNumberFrequencies = (data) => {
@@ -124,69 +124,69 @@ const GridHeatmap = ({ frequencies }) => {
 };
 
 const SmallPieChart = ({ data, labels, colors, title }) => {
-    const chartData = {
-        labels,
-        datasets: [{ data, backgroundColor: colors }],
-    };
-    return (
-        <div className="flex flex-col items-center">
-            <div className="w-24 h-24 sm:w-32 sm:h-32">
-                <Pie data={chartData} options={{ responsive: true, plugins: { legend: { display: false }, title: { display: true, text: title, position: 'bottom' }}}}/>
-            </div>
-        </div>
-    );
+  const chartData = {
+    labels,
+    datasets: [{ data, backgroundColor: colors }],
+  };
+  return (
+    <div className="flex flex-col items-center">
+      <div className="w-24 h-24 sm:w-32 sm:h-32">
+        <Pie data={chartData} options={{ responsive: true, plugins: { legend: { display: false }, title: { display: true, text: title, position: 'bottom' } } }} />
+      </div>
+    </div>
+  );
 };
 
 
 // --- UPDATED NetworkGraph Component ---
 const NetworkGraph = ({ pairs }) => {
-    const nodes = useMemo(() =>
-        [...new Set(pairs.flatMap(([pair]) => pair.split('-')))].map(id => ({ id, radius: 8, color: '#2563eb' }))
+  const nodes = useMemo(() =>
+    [...new Set(pairs.flatMap(([pair]) => pair.split('-')))].map(id => ({ id, radius: 8, color: '#2563eb' }))
     , [pairs]);
 
-    const links = useMemo(() =>
-        pairs.map(([pair, freq]) => {
-            const [source, target] = pair.split('-');
-            return { source, target, weight: freq };
-        })
+  const links = useMemo(() =>
+    pairs.map(([pair, freq]) => {
+      const [source, target] = pair.split('-');
+      return { source, target, weight: freq };
+    })
     , [pairs]);
 
-    if (!nodes.length || !links.length) return <p className="text-gray-500 text-center">Not enough data for graph.</p>
+  if (!nodes.length || !links.length) return <p className="text-gray-500 text-center">Not enough data for graph.</p>
 
-    const graph = { nodes, links };
+  const graph = { nodes, links };
 
-    // Use ParentSize to make the graph responsive
-    return (
-        <div className="w-full h-96">
-            <ParentSize>
-                {({ width, height }) => (
-                    <svg width={width} height={height}>
-                        <rect width={width} height={height} fill="#f9fafb" rx={14} />
-                        <Graph
-                            key={`graph-${width}-${height}`} // Re-render graph on resize
-                            graph={graph}
-                            nodeComponent={({ node }) => (
-                                <circle
-                                    r={node.radius}
-                                    fill={node.color}
-                                    onClick={() => alert(`Node: ${node.id}`)}
-                                    className="cursor-pointer"
-                                />
-                            )}
-                            linkComponent={({ link }) => (
-                                <line
-                                    x1={link.source.x} y1={link.source.y}
-                                    x2={link.target.x} y2={link.target.y}
-                                    strokeWidth={link.weight * 1.5}
-                                    stroke="#9ca3af" strokeOpacity={0.6}
-                                />
-                            )}
-                        />
-                    </svg>
-                )}
-            </ParentSize>
-        </div>
-    );
+  // Use ParentSize to make the graph responsive
+  return (
+    <div className="w-full h-96">
+      <ParentSize>
+        {({ width, height }) => (
+          <svg width={width} height={height}>
+            <rect width={width} height={height} fill="#f9fafb" rx={14} />
+            <Graph
+              key={`graph-${width}-${height}`} // Re-render graph on resize
+              graph={graph}
+              nodeComponent={({ node }) => (
+                <circle
+                  r={node.radius}
+                  fill={node.color}
+                  onClick={() => alert(`Node: ${node.id}`)}
+                  className="cursor-pointer"
+                />
+              )}
+              linkComponent={({ link }) => (
+                <line
+                  x1={link.source.x} y1={link.source.y}
+                  x2={link.target.x} y2={link.target.y}
+                  strokeWidth={link.weight * 1.5}
+                  stroke="#9ca3af" strokeOpacity={0.6}
+                />
+              )}
+            />
+          </svg>
+        )}
+      </ParentSize>
+    </div>
+  );
 }
 
 // --- Main Page Component (Unchanged, but now calls the fixed NetworkGraph) ---
@@ -216,18 +216,18 @@ export default function DataAnalysisPage() {
           <Card className="lg:col-span-2">
             <CardTitle>Descriptive Summary</CardTitle>
             <div className="grid grid-cols-1 sm:grid-cols-2 text-center divide-y sm:divide-y-0 sm:divide-x divide-gray-200">
-                <div className="py-4">
-                    <h4 className="text-lg font-semibold text-gray-700">Sum of Combinations</h4>
-                    <p className="text-gray-600">Mean: <span className="font-bold">{sumStats.mean}</span></p>
-                    <p className="text-gray-600">Median: <span className="font-bold">{sumStats.median}</span></p>
-                    <p className="text-gray-600">Range: <span className="font-bold">{sumStats.range}</span></p>
-                </div>
-                 <div className="py-4">
-                    <h4 className="text-lg font-semibold text-gray-700">Length of Combinations</h4>
-                    <p className="text-gray-600">Mean: <span className="font-bold">{lengthStats.mean}</span></p>
-                    <p className="text-gray-600">Median: <span className="font-bold">{lengthStats.median}</span></p>
-                    <p className="text-gray-600">Range: <span className="font-bold">{lengthStats.range}</span></p>
-                </div>
+              <div className="py-4">
+                <h4 className="text-lg font-semibold text-gray-700">Sum of Combinations</h4>
+                <p className="text-gray-600">Mean: <span className="font-bold">{sumStats.mean}</span></p>
+                <p className="text-gray-600">Median: <span className="font-bold">{sumStats.median}</span></p>
+                <p className="text-gray-600">Range: <span className="font-bold">{sumStats.range}</span></p>
+              </div>
+              <div className="py-4">
+                <h4 className="text-lg font-semibold text-gray-700">Length of Combinations</h4>
+                <p className="text-gray-600">Mean: <span className="font-bold">{lengthStats.mean}</span></p>
+                <p className="text-gray-600">Median: <span className="font-bold">{lengthStats.median}</span></p>
+                <p className="text-gray-600">Range: <span className="font-bold">{lengthStats.range}</span></p>
+              </div>
             </div>
           </Card>
 
@@ -241,58 +241,58 @@ export default function DataAnalysisPage() {
             <GridHeatmap frequencies={frequencies} />
           </Card>
 
-           <Card className="lg:col-span-2">
-              <CardTitle>Relational Analysis</CardTitle>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-1">
-                    <h4 className="text-lg font-semibold text-gray-700 mb-2">Most Common Pairs</h4>
-                    <ul className="space-y-1 text-gray-600">
-                        {getCommonPairs(combinationsData).map(([pair, count]) => (
-                            <li key={pair} className="flex justify-between p-2 bg-gray-50 rounded">
-                                <span>Pair: <span className="font-mono font-bold">{pair}</span></span>
-                                <span className="font-semibold">{count} times</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-                <div className="md:col-span-2">
-                    <h4 className="text-lg font-semibold text-gray-700 mb-2 text-center">Co-occurrence Network Graph</h4>
-                    <NetworkGraph pairs={commonPairs} />
-                </div>
+          <Card className="lg:col-span-2">
+            <CardTitle>Relational Analysis</CardTitle>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="md:col-span-1">
+                <h4 className="text-lg font-semibold text-gray-700 mb-2">Most Common Pairs</h4>
+                <ul className="space-y-1 text-gray-600">
+                  {getCommonPairs(combinationsData).map(([pair, count]) => (
+                    <li key={pair} className="flex justify-between p-2 bg-gray-50 rounded">
+                      <span>Pair: <span className="font-mono font-bold">{pair}</span></span>
+                      <span className="font-semibold">{count} times</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
+              <div className="md:col-span-2">
+                <h4 className="text-lg font-semibold text-gray-700 mb-2 text-center">Co-occurrence Network Graph</h4>
+                <NetworkGraph pairs={commonPairs} />
+              </div>
+            </div>
           </Card>
 
           <Card className="lg:col-span-2">
             <CardTitle>Breakdown by Combination</CardTitle>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <h4 className="text-lg font-semibold text-gray-700 mb-4 text-center">Even/Odd Ratios</h4>
-                    <div className="flex flex-wrap justify-center gap-4">
-                        {combinationsData.map(c => (
-                            <SmallPieChart
-                                key={c.id}
-                                title={`Set ${c.id}`}
-                                data={[c.numbers.filter(n => n % 2 === 0).length, c.numbers.filter(n => n % 2 !== 0).length]}
-                                labels={['Even', 'Odd']}
-                                colors={['#60a5fa', '#f87171']}
-                            />
-                        ))}
-                    </div>
+              <div>
+                <h4 className="text-lg font-semibold text-gray-700 mb-4 text-center">Even/Odd Ratios</h4>
+                <div className="flex flex-wrap justify-center gap-4">
+                  {combinationsData.map(c => (
+                    <SmallPieChart
+                      key={c.id}
+                      title={`Set ${c.id}`}
+                      data={[c.numbers.filter(n => n % 2 === 0).length, c.numbers.filter(n => n % 2 !== 0).length]}
+                      labels={['Even', 'Odd']}
+                      colors={['#60a5fa', '#f87171']}
+                    />
+                  ))}
                 </div>
-                 <div>
-                    <h4 className="text-lg font-semibold text-gray-700 mb-4 text-center">Low/High Ratios</h4>
-                    <div className="flex flex-wrap justify-center gap-4">
-                        {combinationsData.map(c => (
-                            <SmallPieChart
-                                key={c.id}
-                                title={`Set ${c.id}`}
-                                data={[c.numbers.filter(n => n <= 25).length, c.numbers.filter(n => n > 25).length]}
-                                labels={['Low (1-25)', 'High (26-49)']}
-                                colors={['#facc15', '#4ade80']}
-                            />
-                        ))}
-                    </div>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-gray-700 mb-4 text-center">Low/High Ratios</h4>
+                <div className="flex flex-wrap justify-center gap-4">
+                  {combinationsData.map(c => (
+                    <SmallPieChart
+                      key={c.id}
+                      title={`Set ${c.id}`}
+                      data={[c.numbers.filter(n => n <= 25).length, c.numbers.filter(n => n > 25).length]}
+                      labels={['Low (1-25)', 'High (26-49)']}
+                      colors={['#facc15', '#4ade80']}
+                    />
+                  ))}
                 </div>
+              </div>
             </div>
           </Card>
         </div>

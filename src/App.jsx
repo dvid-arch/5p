@@ -10,6 +10,7 @@ import Chart from './pages/Chat';
 import LotteryDataAnalyzer from './pages/Claudeanal';
 import Chanal from './pages/Chanal';
 import CurriculumLearningPlatform from './pages/TestOnePage';
+import PublicPredictions from './pages/PublicPredictions';
 
 function App() {
   return (
@@ -17,6 +18,8 @@ function App() {
       <MainLayout>
         <Routes>
           <Route path='/' element={<LandingPage />} />
+          <Route path='/dashboard' element={<LandingPage />} />
+          <Route path='/predictions' element={<PublicPredictions />} />
           <Route path='/Chat' element={<Chart />} />
           <Route path='/Canal' element={<LotteryDataAnalyzer />} />
           <Route path='/chatai' element={<CurriculumLearningPlatform />} />

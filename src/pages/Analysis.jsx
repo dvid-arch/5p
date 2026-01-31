@@ -3,7 +3,7 @@ import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid,
     Tooltip, ResponsiveContainer
 } from 'recharts';
-import { ata, datamod } from '../constant/data';
+import { truestdata } from '../constant/data';
 
 const LotteryAnalysis = () => {
     const [data, setData] = useState([]);
@@ -11,8 +11,9 @@ const LotteryAnalysis = () => {
     const [activeTab, setActiveTab] = useState('frequency');
 
     useEffect(() => {
-        setData(datamod);
-        analyzeData(datamod);
+        const chronologicalData = [...truestdata].reverse();
+        setData(chronologicalData);
+        analyzeData(chronologicalData);
     }, []);
 
     const tabList = [
