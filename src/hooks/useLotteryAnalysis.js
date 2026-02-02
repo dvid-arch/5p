@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 import { SignalTrainer } from '../pages/NeuralUtils';
+import { detectAlgebraicBonds, detectPartialAlgebraicResults } from '../pages/PatternUtils';
+import { HMM, discretizeDraw } from '../pages/HMMUtils';
 
 /**
  * Standalone function for analyzing a specific dataset
@@ -23,6 +25,27 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
 
     const totalDraws = data.length;
     const allNumbers = data.flatMap(d => d.numbers || d);
+
+    // --- HMM PRE-ANALYSIS ---
+    // Extract state-driving features from history to build observation sequence
+    const observations = data.map((draw, idx) => {
+        const nums = draw.numbers || draw;
+        const bonds = detectAlgebraicBonds(nums);
+
+        // Count echoes from previous week
+        let echoes = 0;
+        if (idx > 0) {
+            const prev = new Set(data[idx - 1].numbers || data[idx - 1]);
+            nums.forEach(n => { if (prev.has(n)) echoes++; });
+        }
+
+        return discretizeDraw({ bondIntensity: bonds.length, echoCount: echoes });
+    });
+
+    const hmm = new HMM(3, 3); // 3 states, 3 observation types
+    hmm.train(observations);
+    const currentStateProbs = hmm.predictStateProbabilities(observations);
+    const hotStateProb = currentStateProbs[2] + currentStateProbs[1] * 0.5; // Combined "Hot/Resonant" probability
 
     // 1. Frequency Analysis
     const frequency = {};
@@ -602,6 +625,15 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
         const currentDrawIndex = drawIdx + 1;
 
         // Collect signals for Neural Training
+        const partialResults = detectPartialAlgebraicResults(data[drawIdx].numbers || data[drawIdx]);
+        const prevNumbers = drawIdx > 0 ? (data[drawIdx - 1].numbers || data[drawIdx - 1]) : [];
+        const prevPrevNumbers = drawIdx > 1 ? (data[drawIdx - 2].numbers || data[drawIdx - 2]) : [];
+
+        // HMM State at this point in history
+        const historicalObs = observations.slice(0, drawIdx + 1);
+        const stateProbsAtTime = hmm.predictStateProbabilities(historicalObs);
+        const hProb = stateProbsAtTime[2] + stateProbsAtTime[1] * 0.5;
+
         const signalsAtTime = {};
         for (let num = numberRange.min; num <= numberRange.max; num++) {
             const appearances = numberHistory[num]?.filter(a => a < currentDrawIndex) || [];
@@ -614,7 +646,11 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
                 velocity: (recentHits - prevHits) / 5,
                 gap: Math.min(1, wsl / 15),
                 markov: markovTransitions[num]?.probability || 0,
-                pattern: 0.5
+                pattern: 0.5,
+                algebraic: Math.min(1, (partialResults[num] || 0) / 3),
+                lag1: prevNumbers.includes(num) ? 1 : 0,
+                lag2: prevPrevNumbers.includes(num) ? 1 : 0,
+                hmmState: hProb
             };
         }
         historicalSignals[drawIdx] = signalsAtTime;
@@ -882,13 +918,21 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
         const momentumVal = momentum[num] || 0;
         const markovProb = markovTransitions[num]?.probability || 0;
         const patternProb = patternScores[num] || 0;
+        const partialResults = detectPartialAlgebraicResults(data[data.length - 1].numbers || data[data.length - 1]);
+        const algebraicProb = Math.min(1, (partialResults[num] || 0) / 3);
+        const lag1 = (data[data.length - 1].numbers || data[data.length - 1]).includes(num) ? 1 : 0;
+        const lag2 = data.length > 1 && (data[data.length - 2].numbers || data[data.length - 2]).includes(num) ? 1 : 0;
 
         // Neural Prediction
         const neuralScore = trainer.predict(num, [
             momentumVal,
             gapInfo ? Math.min(1, gapInfo.weeksSinceLast / (gapInfo.avgGap || 10)) : 0,
             markovProb,
-            patternProb
+            patternProb,
+            algebraicProb,
+            lag1,
+            lag2,
+            hotStateProb
         ]);
 
         // Normalize sensors 0-1
@@ -896,9 +940,12 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
         const velocitySensor = Math.max(0, Math.min(1, (momentumVal + 0.5))); // Offset by 0.5 to center
         const markovSensor = markovProb;
         const patternSensor = patternProb;
+        const algebraicSensor = algebraicProb;
+        const echoSensor = (lag1 + lag2) / 2;
+        const hmmSensor = hotStateProb;
 
-        // Final Signal Blend including Neural Layer (35% weight to Neural)
-        const combinedSignal = (gapSensor * 0.2) + (velocitySensor * 0.15) + (markovSensor * 0.15) + (patternSensor * 0.15) + (neuralScore * 0.35);
+        // Final Signal Blend including Neural Layer (20% weight to Neural, 10% to HMM, 15% to Echo, 15% to Algebraic)
+        const combinedSignal = (gapSensor * 0.1) + (velocitySensor * 0.1) + (markovSensor * 0.1) + (patternSensor * 0.1) + (algebraicSensor * 0.15) + (echoSensor * 0.15) + (hmmSensor * 0.1) + (neuralScore * 0.2);
 
         // Strategic Window Logic
         const avg = gapInfo?.avgGap || 10;
@@ -1065,6 +1112,11 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
             singles: signalSingles,
             pairs: signalPairs,
             bankers: signalBankers
+        },
+        hmm: {
+            probs: currentStateProbs,
+            hotProb: hotStateProb,
+            state: currentStateProbs.indexOf(Math.max(...currentStateProbs))
         },
         predictions: totalDraws < 50 ? { ensemble: [], bankers: [], pairs: [], binary: [], bayesian: [], urgency: [] } : unifiedPredictions,
         backtest: backtestResults,

@@ -78,6 +78,77 @@ export function detectPatterns(numbers) {
  * small "plugin registry" for additional analyzers / visualizers:
  * plugins are objects { id, name, run(sets) => result }
  */
+/**
+ * Detect algebraic bonds: A*B=C, A+B=C, A^2=B, etc.
+ */
+export function detectAlgebraicBonds(numbers) {
+  const sorted = [...numbers].sort((a, b) => a - b);
+  const n = sorted.length;
+  const bonds = [];
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const sum = sorted[i] + sorted[j];
+      const product = sorted[i] * sorted[j];
+
+      // Addition Bond
+      if (sorted.includes(sum)) {
+        bonds.push({ type: "addition", a: sorted[i], b: sorted[j], result: sum });
+      }
+
+      // Multiplication Bond
+      if (product <= 49 && sorted.includes(product)) {
+        bonds.push({ type: "multiplication", a: sorted[i], b: sorted[j], result: product });
+      }
+    }
+  }
+
+  // Check for powers/roots
+  sorted.forEach(val => {
+    const sq = val * val;
+    if (sq <= 49 && sorted.includes(sq)) {
+      bonds.push({ type: "square", a: val, result: sq });
+    }
+  });
+
+  return bonds;
+}
+
+/**
+ * Detect results that WOULD complete a bond if they appeared.
+ * Returns a map of number -> intensity (how many partial bonds it completes)
+ */
+export function detectPartialAlgebraicResults(numbers) {
+  const sorted = [...numbers].sort((a, b) => a - b);
+  const n = sorted.length;
+  const numSet = new Set(sorted);
+  const results = {};
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const sum = sorted[i] + sorted[j];
+      const product = sorted[i] * sorted[j];
+
+      if (sum <= 49 && !numSet.has(sum)) {
+        results[sum] = (results[sum] || 0) + 1;
+      }
+      if (product > 1 && product <= 49 && !numSet.has(product)) {
+        results[product] = (results[product] || 0) + 1;
+      }
+    }
+  }
+
+  // Squares
+  sorted.forEach(val => {
+    const sq = val * val;
+    if (sq > 1 && sq <= 49 && !numSet.has(sq)) {
+      results[sq] = (results[sq] || 0) + 1;
+    }
+  });
+
+  return results;
+}
+
 const plugins = new Map();
 export function registerPlugin(plugin) {
   if (!plugin?.id) throw new Error("Plugin must have an id");

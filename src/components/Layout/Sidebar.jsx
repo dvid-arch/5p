@@ -9,7 +9,8 @@ import {
     ChevronRight,
     TrendingUp,
     BrainCircuit,
-    LayoutDashboard
+    LayoutDashboard,
+    Calculator
 } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, path, active, collapsed }) => (
@@ -34,6 +35,7 @@ const Sidebar = ({ collapsed }) => {
         { icon: LayoutDashboard, label: 'Main Dashboard', path: '/' },
         { icon: Home, label: 'Institutional Analytics', path: '/adanal' },
         { icon: Search, label: 'Pattern Explorer', path: '/analysis' },
+        { icon: Calculator, label: 'Algebraic Bonds', path: '/algebraic' },
         { icon: BrainCircuit, label: 'AI Engine', path: '/Canal' },
     ] : [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/' },

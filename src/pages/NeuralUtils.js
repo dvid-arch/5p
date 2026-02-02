@@ -109,7 +109,7 @@ export class SignalTrainer {
         // Initialize networks if needed
         for (let num = numberRange.min; num <= numberRange.max; num++) {
             if (!this.models[num]) {
-                this.models[num] = new NeuralNetwork(4, 8, 1); // 4 inputs, 8 hidden, 1 output
+                this.models[num] = new NeuralNetwork(8, 12, 1); // 8 inputs, 12 hidden, 1 output
             }
         }
 
@@ -131,7 +131,11 @@ export class SignalTrainer {
                         sensorsAtDraw[num]?.velocity || 0,
                         sensorsAtDraw[num]?.gap || 0,
                         sensorsAtDraw[num]?.markov || 0,
-                        sensorsAtDraw[num]?.pattern || 0
+                        sensorsAtDraw[num]?.pattern || 0,
+                        sensorsAtDraw[num]?.algebraic || 0,
+                        sensorsAtDraw[num]?.lag1 || 0,
+                        sensorsAtDraw[num]?.lag2 || 0,
+                        sensorsAtDraw[num]?.hmmState || 0
                     ];
 
                     // Label is 1.0 if number hits ANYWHERE in the next 'lookAheadWindow' draws

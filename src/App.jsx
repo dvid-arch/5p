@@ -11,6 +11,7 @@ import LotteryDataAnalyzer from './pages/Claudeanal';
 import Chanal from './pages/Chanal';
 import CurriculumLearningPlatform from './pages/TestOnePage';
 import PublicPredictions from './pages/PublicPredictions';
+import AlgebraicBonds from './pages/AlgebraicBonds';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path='/' element={<LandingPage />} />
           <Route path='/dashboard' element={<LandingPage />} />
           <Route path='/predictions' element={<PublicPredictions />} />
+          <Route path='/algebraic' element={<AlgebraicBonds />} />
           <Route path='/Chat' element={<Chart />} />
           <Route path='/Canal' element={<LotteryDataAnalyzer />} />
           <Route path='/chatai' element={<CurriculumLearningPlatform />} />
