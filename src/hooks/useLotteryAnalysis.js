@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { SignalTrainer } from '../pages/NeuralUtils';
-import { detectAlgebraicBonds, detectPartialAlgebraicResults } from '../pages/PatternUtils';
+import { detectAlgebraicBonds, detectPartialAlgebraicResults, detectIsolatedClusters } from '../pages/PatternUtils';
 import { HMM, discretizeDraw } from '../pages/HMMUtils';
 
 /**
@@ -31,6 +31,7 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
     const observations = data.map((draw, idx) => {
         const nums = draw.numbers || draw;
         const bonds = detectAlgebraicBonds(nums);
+        const clusters = detectIsolatedClusters(nums);
 
         // Count echoes from previous week
         let echoes = 0;
@@ -39,7 +40,7 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
             nums.forEach(n => { if (prev.has(n)) echoes++; });
         }
 
-        return discretizeDraw({ bondIntensity: bonds.length, echoCount: echoes });
+        return discretizeDraw({ bondIntensity: bonds.length + clusters.length, echoCount: echoes });
     });
 
     const hmm = new HMM(3, 3); // 3 states, 3 observation types
@@ -104,6 +105,52 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
             }
         }
     }
+
+    // 3.5 Isolated Clusters in Latest Draw
+    const latestDraw = data[totalDraws - 1].numbers || data[totalDraws - 1];
+    const latestClusters = detectIsolatedClusters(latestDraw);
+
+    // 3.6 Global Cluster Success Analytics (Double Hit Only)
+    let totalClusterTriggers = 0;
+    let successfulDoubleHits = 0;
+    let totalWaitWeeks = 0;
+
+    // Scan history for clusters
+    // We stop 15 weeks before current to allow time for resolution
+    for (let i = 0; i < totalDraws - 15; i++) {
+        const historicalDraw = data[i].numbers || data[i];
+        const clusters = detectIsolatedClusters(historicalDraw);
+
+        clusters.forEach(cluster => {
+            totalClusterTriggers++;
+            const preds = cluster.predictions;
+
+            // Find when BOTH hit in the future relative to index 'i'
+            // In 'data' (reversed to oldest-first), the future of 'i' is indices [i+1...totalDraws-1]
+            let hitTimes = [];
+            preds.forEach(p => {
+                for (let j = i + 1; j < totalDraws; j++) {
+                    const futureDraw = data[j].numbers || data[j];
+                    if (futureDraw.includes(p)) {
+                        hitTimes.push(j - i); // Weeks since the cluster trigger
+                        break;
+                    }
+                }
+            });
+
+            if (hitTimes.length === preds.length) {
+                successfulDoubleHits++;
+                totalWaitWeeks += Math.max(...hitTimes);
+            }
+        });
+    }
+
+    const clusterStats = {
+        totalTriggers: totalClusterTriggers,
+        doubleHits: successfulDoubleHits,
+        successRate: totalClusterTriggers > 0 ? (successfulDoubleHits / totalClusterTriggers) * 100 : 0,
+        avgWait: successfulDoubleHits > 0 ? (totalWaitWeeks / successfulDoubleHits).toFixed(1) : 0
+    };
 
     // 4. Pattern Recognition (Even/Odd, Sums, High/Low)
     const processedDraws = data.map((draw, index) => {
@@ -584,7 +631,8 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
         bayesian: Object.entries(bayesianScores).map(([n, s]) => ({ number: parseInt(n), score: s })).sort((a, b) => b.score - a.score),
         urgency: Object.entries(urgencyScores).map(([n, s]) => ({ number: parseInt(n), score: s })).sort((a, b) => b.score - a.score),
         pairs: pairPredictions.sort((a, b) => b.score - a.score),
-        bankers: bankerPairs.sort((a, b) => b.score - a.score)
+        bankers: bankerPairs.sort((a, b) => b.score - a.score),
+        latestClusters
     };
 
     // 16. Historical Prediction Log (State Reconstruction)
@@ -1124,7 +1172,8 @@ export const analyzeLotteryData = (inputData, settings = {}) => {
             totalDraws,
             latestDraw: inputData[0] || null, // Reassurance: Current week's result (index 0 is newest)
             avgSum: processedDraws.reduce((a, b) => a + b.sum, 0) / (totalDraws || 1),
-            numberRange
+            numberRange,
+            clusterStats
         }
     };
 };

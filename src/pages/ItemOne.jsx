@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import Grid from "../components/Grid"
 import { useState, useMemo } from "react";
-import { ArrowLeft, Copy, CheckCircle2, TrendingUp, AlertCircle, Zap, Target, Award, Activity, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Copy, CheckCircle2, TrendingUp, AlertCircle, Zap, Target, Award, Activity, ChevronLeft, ChevronRight, History, RotateCw, Calculator } from "lucide-react";
 import { truestdata } from "../constant/data";
 import { useLotteryAnalysis } from "../hooks/useLotteryAnalysis";
+import { detectAlgebraicBonds, detectIsolatedClusters, detectInverseClusters } from "./PatternUtils";
 
 function CopyButton({ text }) {
     const [copied, setCopied] = useState(false);
@@ -104,6 +105,107 @@ function ItemOne() {
         return { sum, range, length: data.length, avgPredictionScore, historySize: historicalData.length };
     }, [data, predictionScores, historicalData]);
 
+    const algebraicBonds = useMemo(() => {
+        return detectAlgebraicBonds(data);
+    }, [data]);
+
+    const isolatedClusters = useMemo(() => {
+        const clusters = detectIsolatedClusters(data);
+        const idx = parseInt(itemIndex);
+
+        return clusters.map(cluster => {
+            const hits = [];
+            // For each prediction, find when it first hit (starting from current draw)
+            cluster.predictions.forEach(p => {
+                let hitWeek = -1;
+                // Search from idx (current) down to 0 (newest)
+                for (let fIdx = idx; fIdx >= 0; fIdx--) {
+                    if (truestdata[fIdx].includes(p)) {
+                        hitWeek = idx - fIdx;
+                        break;
+                    }
+                }
+                if (hitWeek !== -1) hits.push({ num: p, weeks: hitWeek });
+            });
+
+            // Calculate Completion Week: the max of the individual first hits
+            const isCompleted = hits.length === cluster.predictions.length;
+            const completionWeek = isCompleted ? Math.max(...hits.map(h => h.weeks)) : null;
+
+            return { ...cluster, futureHits: hits, isCompleted, completionWeek };
+        });
+    }, [data, itemIndex]);
+
+    const seedOrigins = useMemo(() => {
+        const origins = detectInverseClusters(data);
+        const idx = parseInt(itemIndex);
+
+        return origins.map(s => {
+            const jointHits = [];
+            let foundDouble = false;
+            let foundTriple = false;
+
+            // Search future draws (indices [idx-1...0]) for joint manifestations
+            for (let fIdx = idx - 1; fIdx >= 0; fIdx--) {
+                const draw = truestdata[fIdx];
+                if (!draw) continue;
+
+                const matches = s.seed.filter(n => draw.includes(n));
+                const count = matches.length;
+                const weeks = idx - fIdx;
+
+                if (count === 3 && !foundTriple) {
+                    // First Triple Hit found
+                    jointHits.push({
+                        nums: matches.sort((a, b) => a - b),
+                        weeks,
+                        targetWeek: fIdx,
+                        count: 3
+                    });
+                    foundTriple = true;
+                    // Note: A triple hit is ALSO a double hit. 
+                    // If we haven't found a double hit yet, this serves as both.
+                    foundDouble = true;
+                } else if (count === 2 && !foundDouble) {
+                    // First Double Hit found
+                    jointHits.push({
+                        nums: matches.sort((a, b) => a - b),
+                        weeks,
+                        targetWeek: fIdx,
+                        count: 2
+                    });
+                    foundDouble = true;
+                }
+
+                if (foundDouble && foundTriple) break;
+            }
+            return { ...s, jointHits };
+        });
+    }, [data, itemIndex]);
+
+    const ringedNums = useMemo(() => {
+        const ringMap = new Map();
+
+        // General Algebraic Bonds (Cyan)
+        algebraicBonds.forEach(b => {
+            ringMap.set(b.a, 'cyan-400');
+            if (b.b) ringMap.set(b.b, 'cyan-400');
+            ringMap.set(b.result, 'cyan-400');
+        });
+
+        // Isolated Spatial Clusters (Amber) - OVERWRITE if conflict
+        isolatedClusters.forEach(c => {
+            c.numbers.forEach(n => ringMap.set(n, 'amber-500'));
+        });
+
+        // Seed Origins (Indigo) - Indicate the decomposition sources
+        seedOrigins.forEach(s => {
+            s.pair.forEach(n => ringMap.set(n, 'indigo-400'));
+        });
+
+        return Array.from(ringMap.entries()).map(([n, color]) => ({ n, color }));
+    }, [algebraicBonds, isolatedClusters]);
+
     return (
         <div className="max-w-6xl mx-auto space-y-8">
             {/* Header / Navigation */}
@@ -171,6 +273,7 @@ function ItemOne() {
                                 data={data}
                                 numbToColor={historicalAccuracy?.top20 || []}
                                 length={49}
+                                ringedNums={ringedNums}
                             />
 
                             {/* Grid Legend */}
@@ -187,6 +290,14 @@ function ItemOne() {
                                     <div className="flex items-center gap-1.5">
                                         <div className="w-3 h-3 bg-purple-300 rounded-sm"></div>
                                         <span>AI Prediction</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-3 h-3 rounded-sm border-2 border-cyan-400"></div>
+                                        <span>Algebraic Bond</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <div className="w-3 h-3 rounded-sm border-2 border-amber-500"></div>
+                                        <span>Isolated Cluster</span>
                                     </div>
                                 </div>
                             )}
@@ -293,6 +404,250 @@ function ItemOne() {
                             </div>
                         </div>
                     )}
+
+                    {/* Isolated Spatial Clusters */}
+                    {isolatedClusters.length > 0 && (
+                        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group border-t-4 border-t-amber-500">
+                            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+                                <Activity size={64} className="text-amber-600" />
+                            </div>
+                            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <Activity size={20} className="text-amber-500" />
+                                Isolated Spatial Clusters
+                            </h3>
+                            <div className="space-y-4">
+                                <p className="text-xs text-gray-500">
+                                    Found <span className="text-amber-600 font-bold">{isolatedClusters.length} clean clusters</span> that produce exactly two external results.
+                                </p>
+                                <div className="grid grid-cols-1 gap-4">
+                                    {isolatedClusters.map((cluster, i) => (
+                                        <div key={i} className="p-4 bg-amber-50/50 rounded-2xl border border-amber-100">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex gap-2">
+                                                    {cluster.numbers.map(n => (
+                                                        <div key={n} className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shadow-sm bg-white border ${n === cluster.middle ? 'border-amber-500 text-amber-700 ring-1 ring-amber-200' : 'border-gray-200 text-gray-600'}`}>
+                                                            {n}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Mid: #{cluster.middle}</span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex-1 flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase">Results:</span>
+                                                    <div className="flex gap-1.5">
+                                                        {cluster.predictions.map(p => (
+                                                            <div key={p} className={`px-2.5 py-1 rounded-lg text-xs font-black border ${data.includes(p) ? 'bg-green-500 text-white border-green-600' : 'bg-white text-amber-700 border-amber-200'}`}>
+                                                                #{p}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-1 px-2 py-0.5 bg-white rounded-lg border border-amber-100">
+                                                    <span className="text-[10px] font-black text-amber-600">{cluster.type === 'multiplication' ? '×' : '+'}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Future Outcome Status */}
+                                            <div className="mt-4 pt-4 border-t border-amber-100/50">
+                                                {cluster.isCompleted ? (
+                                                    <div className="bg-green-50 rounded-2xl p-4 border border-green-100 shadow-sm flex items-center justify-between group/hit">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center text-white shadow-lg shadow-green-200">
+                                                                <CheckCircle2 size={24} />
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-[10px] font-black text-green-600 uppercase tracking-widest leading-none mb-1">Double Hit Confirmed</div>
+                                                                <div className="text-sm font-bold text-green-800">Resolved in {cluster.completionWeek} Weeks</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex -space-x-2">
+                                                            {cluster.predictions.map(p => (
+                                                                <div key={p} className="w-8 h-8 rounded-full bg-white border-2 border-green-500 flex items-center justify-center text-[10px] font-black text-green-700 shadow-sm">
+                                                                    {p}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ) : cluster.futureHits.length > 0 ? (
+                                                    <div className="bg-blue-50/50 rounded-2xl p-4 border border-blue-100 flex items-center justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                                                                <TrendingUp size={20} />
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest leading-none mb-1">Double Hit Pending</div>
+                                                                <div className="text-sm font-bold text-blue-800">1 of 2 Numbers Captured</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="px-3 py-1 bg-white rounded-lg border border-blue-200 text-[10px] font-bold text-blue-600 uppercase">
+                                                            Partial Hit
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="bg-gray-50/50 rounded-2xl p-4 border border-gray-100 flex items-center justify-between opacity-60">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-xl bg-gray-200 flex items-center justify-center text-gray-400">
+                                                                <Activity size={20} />
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">No Future Action</div>
+                                                                <div className="text-sm font-medium text-gray-500 italic">No hits recorded to date</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="px-3 py-1 bg-white rounded-lg border border-gray-200 text-[10px] font-bold text-gray-400 uppercase">
+                                                            Pending
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Inverse Cluster Seed Origins */}
+                    {seedOrigins && seedOrigins.length > 0 && (
+                        <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group border-t-4 border-t-indigo-500">
+                            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform text-indigo-600">
+                                <RotateCw size={64} />
+                            </div>
+                            <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <History size={20} className="text-indigo-500" />
+                                Cluster Seed Origins
+                            </h3>
+                            <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+                                Pairs in the current draw that decompose back into a valid 3-number
+                                <span className="font-bold text-indigo-600"> Seed Cluster</span> geometry.
+                            </p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {seedOrigins.map((s, idx) => (
+                                    <div key={idx} className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100 flex flex-col gap-3">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex -space-x-1.5">
+                                                    {s.pair.map(num => (
+                                                        <div key={num} className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[10px] font-black border-2 border-white shadow-sm">
+                                                            #{num}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <span className="text-[10px] font-black text-gray-400 uppercase">From Pair</span>
+                                            </div>
+                                            <div className="px-2 py-0.5 bg-white rounded-lg border border-indigo-200 text-[10px] font-black text-indigo-600">
+                                                {s.type === 'multiplication' ? '× PATH' : '+ PATH'}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex-1 p-3 bg-white rounded-xl border border-indigo-50 shadow-sm">
+                                                <div className="text-[9px] font-black text-indigo-400 uppercase mb-2 tracking-widest">Seed Cluster Origin</div>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex gap-1.5">
+                                                        {s.seed.map(n => (
+                                                            <div key={n} className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black ${n === s.middle ? 'bg-indigo-100 text-indigo-700 border border-indigo-200' : 'bg-gray-50 text-gray-600 border border-gray-100'}`}>
+                                                                {n}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <span className="text-[10px] font-black text-gray-400 block leading-none">HUB</span>
+                                                        <span className="text-sm font-black text-indigo-600">#{s.middle}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {s.isOrtho && (
+                                            <div className="flex items-center gap-1.5 text-indigo-500 mb-1">
+                                                <Zap size={10} strokeWidth={3} />
+                                                <span className="text-[9px] font-black uppercase tracking-tighter">Gold Standard Geometry (Ortho Hub)</span>
+                                            </div>
+                                        )}
+
+                                        {/* Joint Manifestations Section */}
+                                        <div className="mt-2 pt-3 border-t border-indigo-100/30 flex flex-col gap-2">
+                                            <div className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Joint Manifestations (Future)</div>
+                                            {s.jointHits && s.jointHits.length > 0 ? (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {s.jointHits.map((h, hIdx) => (
+                                                        <div key={hIdx} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-xl border shadow-sm ${h.count === 3 ? 'bg-amber-50 border-amber-200' : 'bg-white border-indigo-100'}`}>
+                                                            <div className="flex -space-x-1.5">
+                                                                {h.nums.map(n => (
+                                                                    <div key={n} className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[9px] font-black border border-white shadow-xs ${h.count === 3 ? 'bg-amber-500' : 'bg-indigo-600'}`}>
+                                                                        {n}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                            <div className="flex flex-col leading-none">
+                                                                <span className={`text-[8px] font-black uppercase tracking-tighter ${h.count === 3 ? 'text-amber-600' : 'text-indigo-400'}`}>
+                                                                    {h.count === 3 ? 'Triple Hit' : 'Double Hit Early Capture'}
+                                                                </span>
+                                                                <span className={`text-[10px] font-black ${h.count === 3 ? 'text-amber-700' : 'text-indigo-600'}`}>
+                                                                    {h.weeks} Weeks Later (Week #{h.targetWeek})
+                                                                </span>
+                                                            </div>
+                                                            {h.count === 3 && (
+                                                                <div className="ml-1 text-amber-500">
+                                                                    <Award size={12} strokeWidth={3} />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <span className="text-[10px] font-black text-indigo-300 italic tracking-tighter">No joint manifestations found...</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Algebraic Resonance Card */}
+                    <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden group border-t-4 border-t-cyan-500">
+                        <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+                            <Calculator size={64} className="text-cyan-600" />
+                        </div>
+                        <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <Zap size={20} className="text-cyan-500" />
+                            Algebraic Resonance
+                        </h3>
+                        {algebraicBonds.length > 0 ? (
+                            <div className="space-y-3">
+                                <p className="text-xs text-gray-500">
+                                    Found <span className="text-cyan-600 font-bold">{algebraicBonds.length} mathematical bonds</span> within this sequence.
+                                </p>
+                                <div className="grid grid-cols-1 gap-2">
+                                    {algebraicBonds.map((bond, i) => (
+                                        <div key={i} className="flex items-center justify-between p-3 bg-cyan-50/50 rounded-xl border border-cyan-100 capitalize">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-1.5 bg-white rounded-lg shadow-xs text-cyan-600">
+                                                    {bond.type === 'multiplication' ? <Zap size={14} /> : bond.type === 'addition' ? <Activity size={14} /> : <Target size={14} />}
+                                                </div>
+                                                <span className="text-sm font-bold text-gray-700">
+                                                    {bond.type === 'square'
+                                                        ? <><span className="text-cyan-600">{bond.a}</span>² = <span className="text-cyan-600">{bond.result}</span></>
+                                                        : <><span className="text-cyan-600">{bond.a}</span> {bond.type === 'multiplication' ? '×' : '+'} <span className="text-cyan-600">{bond.b}</span> = <span className="text-cyan-600">{bond.result}</span></>
+                                                    }
+                                                </span>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-cyan-500 uppercase">{bond.type}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="py-8 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                <Calculator className="mx-auto text-gray-300 mb-2" size={32} />
+                                <p className="text-xs text-gray-400 italic">No algebraic bonds detected in this draw.</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Right: Structural Breakdown */}
@@ -404,7 +759,7 @@ function ItemOne() {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }
 

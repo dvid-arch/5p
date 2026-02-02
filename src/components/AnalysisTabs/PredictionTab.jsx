@@ -87,6 +87,54 @@ const PredictionTab = ({ analysis }) => {
                         </div>
                     </div>
 
+                    {/* Cluster-Powered Predictions */}
+                    {predictions.latestClusters && predictions.latestClusters.length > 0 && (
+                        <div className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-[2.5rem] p-1 shadow-xl overflow-hidden">
+                            <div className="bg-white/5 backdrop-blur-xl rounded-[2.2rem] p-6 text-white border border-white/10">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h4 className="text-xl font-bold flex items-center gap-2">
+                                        <Activity className="text-white fill-white/20" size={24} />
+                                        Cluster-Powered Predictions
+                                    </h4>
+                                    <div className="px-3 py-1 bg-white/20 rounded-full border border-white/30 text-[10px] font-black uppercase tracking-widest text-white">
+                                        Algebraic Resonance Detected
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                    {predictions.latestClusters.map((cluster, idx) => (
+                                        <div key={idx} className="bg-black/20 rounded-3xl p-5 border border-white/10">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="flex gap-2">
+                                                    {cluster.numbers.map(num => (
+                                                        <div key={num} className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg ${num === cluster.middle ? 'bg-amber-400 text-amber-950 shadow-lg shadow-amber-500/50' : 'bg-white/20 text-white'}`}>
+                                                            {num}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-[9px] font-black text-white/60 uppercase tracking-widest">Operation</div>
+                                                    <div className="text-lg font-black">{cluster.type === 'addition' ? '+' : '×'}</div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex-1 p-3 bg-white/10 rounded-2xl border border-white/5">
+                                                    <div className="text-[9px] font-black text-white/60 uppercase mb-2">Generated Predictions</div>
+                                                    <div className="flex gap-2">
+                                                        {cluster.predictions.map(p => (
+                                                            <div key={p} className="bg-white text-orange-600 w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shadow-lg">
+                                                                {p}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Single Number Predictions */}
                     <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
                         <h4 className="text-lg font-bold mb-6 flex items-center gap-2 text-gray-800">
@@ -129,14 +177,16 @@ const PredictionTab = ({ analysis }) => {
                                         {pp.confidence}
                                     </div>
 
-                                    <div className="flex gap-2 mb-4">
-                                        {pp.numbers.map(num => (
-                                            <div key={num} className="w-12 h-12 bg-white border-2 border-slate-100 rounded-2xl flex items-center justify-center font-black text-xl text-slate-900 shadow-sm">
-                                                {num}
-                                            </div>
-                                        ))}
+                                    <div className="flex bg-amber-500/20 px-4 py-2 rounded-2xl border border-white/10">
+                                        <div className="flex flex-col border-r border-white/10 pr-4 mr-4">
+                                            <span className="text-[10px] font-bold text-amber-200 uppercase tracking-wider">Double Hit Rate</span>
+                                            <span className="text-lg font-black text-white">{analysis.stats.clusterStats.successRate.toFixed(1)}%</span>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] font-bold text-amber-200 uppercase tracking-wider">Avg Resolution</span>
+                                            <span className="text-lg font-black text-white">{analysis.stats.clusterStats.avgWait} Weeks</span>
+                                        </div>
                                     </div>
-
                                     <div className="space-y-2">
                                         <div className="flex justify-between items-end">
                                             <div>

@@ -149,6 +149,28 @@ export function detectPartialAlgebraicResults(numbers) {
   return results;
 }
 
+/**
+ * Aggregates partial bond targets across the last X weeks to find the most "urgent" completions.
+ * Returns an array of { number, intensity } sorted by intensity.
+ */
+export function getStrongestMissingResults(history = [], limit = 5) {
+  const aggregate = {};
+  const recentWeeks = history.slice(0, limit);
+
+  recentWeeks.forEach((draw, idx) => {
+    const partials = detectPartialAlgebraicResults(draw);
+    const weight = (limit - idx) / limit; // Recency weight
+
+    Object.entries(partials).forEach(([num, count]) => {
+      aggregate[num] = (aggregate[num] || 0) + (count * weight);
+    });
+  });
+
+  return Object.entries(aggregate)
+    .map(([num, intensity]) => ({ number: parseInt(num), intensity }))
+    .sort((a, b) => b.intensity - a.intensity);
+}
+
 const plugins = new Map();
 export function registerPlugin(plugin) {
   if (!plugin?.id) throw new Error("Plugin must have an id");
@@ -167,4 +189,161 @@ export function runPlugins(sets) {
     }
   }
   return results;
+}
+/**
+ * Detect Isolated Spatial Clusters:
+ * 3 numbers that touch only each other and produce exactly 2 algebraic results.
+ */
+export function detectIsolatedClusters(draw) {
+  const results = [];
+  const n = draw.length;
+
+  // Helper for adjacency
+  const areAdj = (n1, n2) => {
+    const r1 = Math.floor((n1 - 1) / GRID_SIZE);
+    const c1 = (n1 - 1) % GRID_SIZE;
+    const r2 = Math.floor((n2 - 1) / GRID_SIZE);
+    const c2 = (n2 - 1) % GRID_SIZE;
+    return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1 && (r1 !== r2 || c1 !== c2);
+  };
+
+  // Helper for orthogonal adjacency
+  const areOrtho = (n1, n2) => {
+    const r1 = Math.floor((n1 - 1) / GRID_SIZE);
+    const c1 = (n1 - 1) % GRID_SIZE;
+    const r2 = Math.floor((n2 - 1) / GRID_SIZE);
+    const c2 = (n2 - 1) % GRID_SIZE;
+    return (r1 === r2 && Math.abs(c1 - c2) === 1) || (c1 === c2 && Math.abs(r1 - r2) === 1);
+  };
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      for (let k = j + 1; k < n; k++) {
+        const triple = [draw[i], draw[j], draw[k]];
+
+        // 1. Isolation check: None of the 3 touch any other number in draw
+        const others = draw.filter(num => !triple.includes(num));
+        const isIsolated = triple.every(t => !others.some(o => areAdj(t, o)));
+        if (!isIsolated) continue;
+
+        // 2. Connectivity & Middle Number
+        // We test each of the 3 as a potential "Middle" independently.
+        const validHits = [];
+        for (let idx = 0; idx < 3; idx++) {
+          const mid = triple[idx];
+          const sibs = triple.filter((_, sIdx) => sIdx !== idx);
+
+          if (areAdj(mid, sibs[0]) && areAdj(mid, sibs[1])) {
+            // Candidate middle connects to both others.
+            // Check algebraic resonance for THIS middle specifically.
+            const plusResults = new Set();
+            const multResults = new Set();
+
+            sibs.forEach(s => {
+              const sum = mid + s;
+              const mul = mid * s;
+              if (sum >= 1 && sum <= 49) plusResults.add(sum);
+              if (mul >= 1 && mul <= 49) multResults.add(mul);
+            });
+
+            // Check if EITHER op type produces exactly 2 results for THIS mid.
+            if (plusResults.size === 2) {
+              validHits.push({ mid, sibs, preds: [...plusResults].sort((a, b) => a - b), type: 'addition' });
+            }
+            if (multResults.size === 2) {
+              validHits.push({ mid, sibs, preds: [...multResults].sort((a, b) => a - b), type: 'multiplication' });
+            }
+          }
+        }
+
+        if (validHits.length > 0) {
+          // Selection Priority: 
+          // 1. Identify the best middle candidate (prefer orthogonal branching)
+          const hubs = [...new Set(validHits.map(h => h.mid))];
+          let bestMid = hubs.find(m => {
+            const sibs = triple.filter(t => t !== m);
+            return areOrtho(m, sibs[0]) && areOrtho(m, sibs[1]);
+          });
+
+          if (!bestMid) bestMid = hubs[0];
+
+          // Push BOTH valid hits (Addition/Multiplication) for that best hub
+          validHits.filter(h => h.mid === bestMid).forEach(hit => {
+            results.push({
+              numbers: triple,
+              middle: hit.mid,
+              predictions: hit.preds,
+              type: hit.type
+            });
+          });
+        }
+      }
+    }
+  }
+  return results;
+}
+
+/**
+ * Detect Inverse Clusters:
+ * Finds pairs in the draw that could have been produced by a hypothetical 3-number "Seed" cluster.
+ */
+export function detectInverseClusters(draw) {
+  const results = [];
+  const n = draw.length;
+
+  const areAdj = (n1, n2) => {
+    const r1 = Math.floor((n1 - 1) / GRID_SIZE);
+    const c1 = (n1 - 1) % GRID_SIZE;
+    const r2 = Math.floor((n2 - 1) / GRID_SIZE);
+    const c2 = (n2 - 1) % GRID_SIZE;
+    return Math.abs(r1 - r2) <= 1 && Math.abs(c1 - c2) <= 1 && (r1 !== r2 || c1 !== c2);
+  };
+
+  const areOrtho = (n1, n2) => {
+    const r1 = Math.floor((n1 - 1) / GRID_SIZE);
+    const c1 = (n1 - 1) % GRID_SIZE;
+    const r2 = Math.floor((n2 - 1) / GRID_SIZE);
+    const c2 = (n2 - 1) % GRID_SIZE;
+    return (r1 === r2 && Math.abs(c1 - c2) === 1) || (c1 === c2 && Math.abs(r1 - r2) === 1);
+  };
+
+  for (let i = 0; i < n; i++) {
+    for (let j = i + 1; j < n; j++) {
+      const A = draw[i];
+      const B = draw[j];
+
+      for (let M = 1; M <= 49; M++) {
+        const configs = [
+          { type: 'addition', s1: A - M, s2: B - M },
+          { type: 'multiplication', s1: A % M === 0 ? A / M : -1, s2: B % M === 0 ? B / M : -1 }
+        ];
+
+        configs.forEach(cfg => {
+          const { s1, s2, type } = cfg;
+          if (s1 >= 1 && s1 <= 49 && s2 >= 1 && s2 <= 49 && s1 !== s2 && s1 !== M && s2 !== M) {
+            if (areAdj(M, s1) && areAdj(M, s2)) {
+              results.push({
+                pair: [A, B].sort((a, b) => a - b),
+                seed: [M, s1, s2].sort((a, b) => a - b),
+                middle: M,
+                type,
+                isOrtho: areOrtho(M, s1) && areOrtho(M, s2)
+              });
+            }
+          }
+        });
+      }
+    }
+  }
+
+  // Deduplicate
+  const unique = [];
+  results.forEach(res => {
+    const key = `${res.pair.join(',')}-${res.seed.join(',')}`;
+    if (!unique.some(u => `${u.pair.join(',')}-${u.seed.join(',')}` === key)) {
+      unique.push(res);
+    }
+  });
+
+  return unique;
 }
