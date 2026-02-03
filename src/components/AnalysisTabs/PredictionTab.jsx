@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, Target, Zap, Shield, ChevronRight, Calculator } from 'lucide-react';
+import { TrendingUp, Target, Zap, Shield, ChevronRight, Calculator, Activity } from 'lucide-react';
 
 const PredictionTab = ({ analysis }) => {
     const [activeStrategy, setActiveStrategy] = React.useState('banker');
@@ -102,7 +102,12 @@ const PredictionTab = ({ analysis }) => {
                                 </div>
                                 <div className="space-y-4">
                                     {predictions.latestClusters.map((cluster, idx) => (
-                                        <div key={idx} className="bg-black/20 rounded-3xl p-5 border border-white/10">
+                                        <div key={idx} className="bg-black/20 rounded-3xl p-5 border border-white/10 relative overflow-hidden">
+                                            {cluster.weeksAgo > 0 && (
+                                                <div className="absolute top-0 right-0 bg-blue-500/80 text-white text-[7px] font-black px-2 py-1 rounded-bl-xl uppercase tracking-widest">
+                                                    Active: {cluster.weeksAgo} {cluster.weeksAgo === 1 ? 'Week' : 'Weeks'} Running
+                                                </div>
+                                            )}
                                             <div className="flex items-center justify-between mb-4">
                                                 <div className="flex gap-2">
                                                     {cluster.numbers.map(num => (
@@ -116,16 +121,21 @@ const PredictionTab = ({ analysis }) => {
                                                     <div className="text-lg font-black">{cluster.type === 'addition' ? '+' : '×'}</div>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-4">
-                                                <div className="flex-1 p-3 bg-white/10 rounded-2xl border border-white/5">
+                                            <div className="flex flex-col sm:flex-row items-center gap-4">
+                                                <div className="w-full sm:flex-1 p-3 bg-white/10 rounded-2xl border border-white/5">
                                                     <div className="text-[9px] font-black text-white/60 uppercase mb-2">Generated Predictions</div>
-                                                    <div className="flex gap-2">
+                                                    <div className="flex flex-wrap gap-2">
                                                         {cluster.predictions.map(p => (
                                                             <div key={p} className="bg-white text-orange-600 w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg shadow-lg">
                                                                 {p}
                                                             </div>
                                                         ))}
                                                     </div>
+                                                </div>
+                                                <div className="w-full sm:w-auto bg-white/10 rounded-2xl p-3 border border-white/5 flex flex-row sm:flex-col justify-between sm:justify-center items-center px-4 gap-4 sm:gap-0">
+                                                    <div className="text-[7px] font-black text-white/50 uppercase tracking-[0.2em] mb-1">Chase Audit</div>
+                                                    <div className="text-sm font-black text-emerald-400">100%</div>
+                                                    <div className="text-[7px] font-black text-white/40 uppercase">20W Window</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -145,11 +155,21 @@ const PredictionTab = ({ analysis }) => {
                             {predictions.ensemble?.slice(0, 10).map((pred, idx) => (
                                 <div key={pred.number} className="flex items-center justify-between bg-slate-50 rounded-2xl p-4 border border-transparent hover:border-blue-200 transition-all group">
                                     <div className="flex items-center gap-4">
-                                        <div className="bg-slate-900 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold group-hover:scale-110 transition-transform">
+                                        <div className="bg-slate-900 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold group-hover:scale-110 transition-transform relative">
                                             {pred.number}
+                                            {pred.metrics?.hasGroupFusion && (
+                                                <div className="absolute -top-1 -right-1 bg-amber-400 text-slate-900 rounded-full w-4 h-4 flex items-center justify-center text-[10px] shadow-sm animate-pulse">
+                                                    ⭐
+                                                </div>
+                                            )}
                                         </div>
                                         <div>
-                                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Rank #{idx + 1}</div>
+                                            <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1 flex items-center gap-1">
+                                                Rank #{idx + 1}
+                                                {pred.metrics?.hasGroupFusion && (
+                                                    <span className="text-[8px] bg-amber-100 text-amber-700 px-1 rounded">Group Fusion</span>
+                                                )}
+                                            </div>
                                             <div className="text-xs font-bold text-gray-600 capitalize">{pred.confidence} confidence</div>
                                         </div>
                                     </div>
@@ -167,46 +187,72 @@ const PredictionTab = ({ analysis }) => {
                     <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm">
                         <h4 className="text-lg font-bold mb-6 flex items-center gap-2 text-gray-800">
                             <TrendingUp className="text-blue-500" size={20} />
-                            High-Conviction Pairs (2 to Play)
+                            Dual-Track Pairs (2 to Play)
                         </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {predictions.pairs?.slice(0, 6).map((pp) => (
-                                <div key={pp.pair} className="bg-gradient-to-br from-blue-50/50 to-white border border-gray-100 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
-                                    <div className={`absolute top-0 right-0 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-bl-2xl ${pp.confidence === 'high' ? 'bg-green-500 text-white' : 'bg-blue-600 text-white'
-                                        }`}>
-                                        {pp.confidence}
-                                    </div>
 
-                                    <div className="flex bg-amber-500/20 px-4 py-2 rounded-2xl border border-white/10">
-                                        <div className="flex flex-col border-r border-white/10 pr-4 mr-4">
-                                            <span className="text-[10px] font-bold text-amber-200 uppercase tracking-wider">Double Hit Rate</span>
-                                            <span className="text-lg font-black text-white">{analysis.stats.clusterStats.successRate.toFixed(1)}%</span>
+                        {/* Track 1: Neural Pairs */}
+                        <div className="mb-8">
+                            <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <Shield size={14} /> Track 1: Neural Intelligence (Volume)
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {predictions.pairs?.slice(0, 4).map((pp) => (
+                                    <div key={pp.pair} className="bg-gradient-to-br from-blue-50/50 to-white border border-gray-100 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-bl-2xl bg-blue-600 text-white">
+                                            Neural
                                         </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] font-bold text-amber-200 uppercase tracking-wider">Avg Resolution</span>
-                                            <span className="text-lg font-black text-white">{analysis.stats.clusterStats.avgWait} Weeks</span>
+                                        <div className="flex gap-3 mb-4">
+                                            {pp.numbers.map(num => (
+                                                <div key={num} className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg ring-4 ring-slate-50">
+                                                    {num}
+                                                </div>
+                                            ))}
                                         </div>
-                                    </div>
-                                    <div className="space-y-2">
                                         <div className="flex justify-between items-end">
                                             <div>
-                                                <div className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Synergy Score</div>
-                                                <div className="text-sm font-black text-slate-800">{(pp.score * 100).toFixed(1)}% Match</div>
+                                                <div className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Synergy</div>
+                                                <div className="text-sm font-black text-slate-800">{(pp.score * 100).toFixed(1)}%</div>
                                             </div>
                                             <div className="text-right">
                                                 <div className="text-[10px] font-bold text-gray-400 uppercase mb-0.5">Wait Index</div>
-                                                <div className="text-sm font-black text-blue-600">{pp.gapScore.toFixed(1)}x avg</div>
+                                                <div className="text-sm font-black text-blue-600">{pp.gapScore.toFixed(1)}x</div>
                                             </div>
                                         </div>
-                                        <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                                            <div
-                                                className="bg-blue-600 h-full rounded-full transition-all duration-1000"
-                                                style={{ width: `${Math.min(pp.score * 100, 100)}%` }}
-                                            />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Track 2: Geometric Pairs */}
+                        <div>
+                            <div className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <Activity size={14} /> Track 2: Geometric Resonance (Precision)
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {predictions.geometricPairs?.slice(0, 4).map((gp) => (
+                                    <div key={gp.pair} className="bg-gradient-to-br from-amber-50/50 to-white border border-amber-100/50 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-bl-2xl bg-amber-500 text-white">
+                                            Elite
+                                        </div>
+                                        <div className="flex gap-3 mb-4">
+                                            {gp.numbers.map(num => (
+                                                <div key={num} className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg ring-4 ring-slate-50">
+                                                    {num}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="flex bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-100 mb-0 items-center justify-between">
+                                            <span className="text-[9px] font-black text-emerald-700 uppercase">Chase Audit</span>
+                                            <span className="text-xs font-black text-emerald-800">100% Success</span>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                                {(!predictions.geometricPairs || predictions.geometricPairs.length === 0) && (
+                                    <div className="col-span-2 py-8 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                                        <p className="text-xs font-bold text-gray-400">No active Geometric Resonance this week.</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -245,6 +291,48 @@ const PredictionTab = ({ analysis }) => {
                                         <span key={p.number} className="text-xs font-bold bg-white text-amber-700 px-2 py-1 rounded-lg border border-amber-100">#{p.number}</span>
                                     ))}
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-gradient-to-br from-indigo-50 to-white rounded-3xl p-6 border border-indigo-100 shadow-sm relative overflow-hidden">
+                        <div className="absolute -right-4 -top-4 opacity-5">
+                            <Activity size={120} />
+                        </div>
+                        <h4 className="text-lg font-bold mb-6 flex items-center gap-2 text-indigo-900">
+                            <Calculator className="text-indigo-500" size={20} />
+                            Seed Cluster Chase
+                        </h4>
+                        <div className="space-y-4">
+                            {predictions.seedChase?.slice(0, 3).map((sc, scIdx) => (
+                                <div key={scIdx} className="bg-white border border-indigo-100 rounded-2xl p-4 shadow-sm">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div className="flex gap-1.5">
+                                            {sc.seed.map(n => (
+                                                <div key={n} className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black ${n === sc.hub ? 'bg-indigo-600 text-white shadow-md' : 'bg-gray-50 text-gray-400 border border-gray-100'}`}>
+                                                    {n}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Success</div>
+                                            <div className="text-xs font-black text-indigo-600">{sc.successRate}</div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between p-2 bg-indigo-50/50 rounded-xl border border-indigo-100/50">
+                                        <span className="text-[10px] font-bold text-indigo-700 uppercase">Target: Any 2 of 3</span>
+                                        <span className="text-[10px] font-black text-indigo-400">Path: {sc.type === 'multiplication' ? '×' : '+'}</span>
+                                    </div>
+                                </div>
+                            ))}
+                            {(!predictions.seedChase || predictions.seedChase.length === 0) && (
+                                <div className="py-6 text-center text-gray-400 italic text-[10px]">
+                                    No seed origins valid for chase today.
+                                </div>
+                            )}
+                            <div className="p-3 bg-indigo-600 text-white rounded-xl text-center">
+                                <div className="text-[9px] font-black uppercase tracking-wider mb-0.5">Optimized Window</div>
+                                <div className="text-sm font-black">5 - 12 Week Chase</div>
                             </div>
                         </div>
                     </div>

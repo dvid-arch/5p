@@ -118,6 +118,46 @@ export function detectAlgebraicBonds(numbers) {
  * Detect results that WOULD complete a bond if they appeared.
  * Returns a map of number -> intensity (how many partial bonds it completes)
  */
+/**
+ * Calculate Global Harmonic Field:
+ * Dense algebraic resonance by checking multiple previous draws and inverse ops.
+ */
+export function calculateHarmonicField(history = [], depth = 3) {
+  const field = {}; // number -> field strength
+  const recent = history.slice(-depth).reverse(); // [lastDraw, prevDraw, ...]
+
+  recent.forEach((draw, idx) => {
+    const numbers = draw.numbers || draw;
+    const n = numbers.length;
+    const weight = (depth - idx) / depth; // 1.0, 0.66, 0.33...
+
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const A = numbers[i], B = numbers[j];
+
+        // Sum & Product
+        const signals = [A + B, A * B, Math.abs(A - B)];
+        if (A % B === 0) signals.push(A / B);
+        if (B % A === 0) signals.push(B / A);
+
+        signals.forEach(s => {
+          if (s >= 1 && s <= 49 && !numbers.includes(s)) {
+            field[s] = (field[s] || 0) + (weight * 0.1);
+          }
+        });
+      }
+
+      // Powers & Roots
+      const sq = numbers[i] * numbers[i];
+      if (sq >= 1 && sq <= 49 && !numbers.includes(sq)) {
+        field[sq] = (field[sq] || 0) + (weight * 0.2);
+      }
+    }
+  });
+
+  return field;
+}
+
 export function detectPartialAlgebraicResults(numbers) {
   const sorted = [...numbers].sort((a, b) => a - b);
   const n = sorted.length;

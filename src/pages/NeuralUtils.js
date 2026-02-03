@@ -109,12 +109,12 @@ export class SignalTrainer {
         // Initialize networks if needed
         for (let num = numberRange.min; num <= numberRange.max; num++) {
             if (!this.models[num]) {
-                this.models[num] = new NeuralNetwork(8, 12, 1); // 8 inputs, 12 hidden, 1 output
+                this.models[num] = new NeuralNetwork(9, 12, 1); // 9 inputs (added resonance), 12 hidden, 1 output
             }
         }
 
         // Training Loops (Epochs)
-        for (let epoch = 0; epoch < 20; epoch++) {
+        for (let epoch = 0; epoch < 50; epoch++) {
             totalLoss = 0;
             samples = 0;
 
@@ -135,7 +135,8 @@ export class SignalTrainer {
                         sensorsAtDraw[num]?.algebraic || 0,
                         sensorsAtDraw[num]?.lag1 || 0,
                         sensorsAtDraw[num]?.lag2 || 0,
-                        sensorsAtDraw[num]?.hmmState || 0
+                        sensorsAtDraw[num]?.hmmState || 0,
+                        sensorsAtDraw[num]?.resonance || 0
                     ];
 
                     // Label is 1.0 if number hits ANYWHERE in the next 'lookAheadWindow' draws

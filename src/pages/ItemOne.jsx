@@ -347,12 +347,12 @@ function ItemOne() {
                                             {/* Tooltip-like popup on hover */}
                                             <div className="hidden group-hover:block absolute bottom-full left-0 mb-2 w-48 bg-gray-900 text-white p-3 rounded-xl text-[10px] z-50 shadow-2xl border border-gray-700 pointer-events-none">
                                                 <div className="grid grid-cols-2 gap-2">
-                                                    <div>Binary: <span className="text-blue-400">{(m.binary * 100).toFixed(0)}%</span></div>
-                                                    <div>Bayesian: <span className="text-indigo-400">{(m.bayesian * 100).toFixed(0)}%</span></div>
-                                                    <div>Root: <span className="text-purple-400">{(m.root * 100).toFixed(0)}%</span></div>
-                                                    <div>Pattern: <span className="text-green-400">{(m.pattern * 100).toFixed(0)}%</span></div>
+                                                    <div>Binary: <span className="text-blue-400">{((m.binary || 0) * 100).toFixed(0)}%</span></div>
+                                                    <div>Bayesian: <span className="text-indigo-400">{((m.bayesian || 0) * 100).toFixed(0)}%</span></div>
+                                                    <div>Root: <span className="text-purple-400">{((m.root || 0) * 100).toFixed(0)}%</span></div>
+                                                    <div>Pattern: <span className="text-green-400">{((m.pattern || 0) * 100).toFixed(0)}%</span></div>
                                                 </div>
-                                                <div className="mt-2 text-gray-400 italic">Urgency: {m.urgency?.toFixed(2)}</div>
+                                                <div className="mt-2 text-gray-400 italic">Urgency: {(m.urgency || 0).toFixed(2)}</div>
                                             </div>
                                         </div>
                                     );
