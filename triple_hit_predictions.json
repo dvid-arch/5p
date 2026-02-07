@@ -1,0 +1,396 @@
+{
+  "summary": {
+    "strategy": "Mode-Based Overdue (90% Reliability Standard)",
+    "chaseWindow": 15,
+    "latestDraw": [
+      2,
+      7,
+      8,
+      11,
+      14,
+      24,
+      35,
+      40,
+      28,
+      42,
+      46,
+      49
+    ]
+  },
+  "top4Predictions": [
+    {
+      "seedCluster": [
+        17,
+        24,
+        25
+      ],
+      "modeGap": 4,
+      "overdueFactor": 29.5,
+      "maxGapProximity": 140.5,
+      "hitFrequency": 2.09,
+      "consensusScore": 970.33,
+      "rationale": "This cluster follows a rhythmic hit pattern with a mode gap of 4. It is currently 29.5x overdue and stands at 140.5% of its historical maximum gap."
+    },
+    {
+      "seedCluster": [
+        3,
+        11,
+        17
+      ],
+      "modeGap": 12,
+      "overdueFactor": 9.75,
+      "maxGapProximity": 92.1,
+      "hitFrequency": 1.61,
+      "consensusScore": 348.58,
+      "rationale": "This cluster follows a rhythmic hit pattern with a mode gap of 12. It is currently 9.75x overdue and stands at 92.1% of its historical maximum gap."
+    },
+    {
+      "seedCluster": [
+        17,
+        18,
+        25
+      ],
+      "modeGap": 26,
+      "overdueFactor": 4.54,
+      "maxGapProximity": 69.8,
+      "hitFrequency": 1.61,
+      "consensusScore": 178.85,
+      "rationale": "This cluster follows a rhythmic hit pattern with a mode gap of 26. It is currently 4.54x overdue and stands at 69.8% of its historical maximum gap."
+    },
+    {
+      "seedCluster": [
+        3,
+        4,
+        10
+      ],
+      "modeGap": 14,
+      "overdueFactor": 4.5,
+      "maxGapProximity": 35.8,
+      "hitFrequency": 1.93,
+      "consensusScore": 157.44,
+      "rationale": "This cluster follows a rhythmic hit pattern with a mode gap of 14. It is currently 4.5x overdue and stands at 35.8% of its historical maximum gap."
+    }
+  ],
+  "detailedAnalysis": [
+    {
+      "seed": [
+        17,
+        24,
+        25
+      ],
+      "currentGap": 118,
+      "avgGap": 37.33,
+      "modeGap": 4,
+      "maxGap": 84,
+      "hitFrequency": 2.09,
+      "overdueFactor": 29.5,
+      "maxGapProximity": 140.5,
+      "consensusScore": 970.33,
+      "hits": 13
+    },
+    {
+      "seed": [
+        3,
+        11,
+        17
+      ],
+      "currentGap": 117,
+      "avgGap": 48.89,
+      "modeGap": 12,
+      "maxGap": 127,
+      "hitFrequency": 1.61,
+      "overdueFactor": 9.75,
+      "maxGapProximity": 92.1,
+      "consensusScore": 348.58,
+      "hits": 10
+    },
+    {
+      "seed": [
+        17,
+        18,
+        25
+      ],
+      "currentGap": 118,
+      "avgGap": 47.11,
+      "modeGap": 26,
+      "maxGap": 169,
+      "hitFrequency": 1.61,
+      "overdueFactor": 4.54,
+      "maxGapProximity": 69.8,
+      "consensusScore": 178.85,
+      "hits": 10
+    },
+    {
+      "seed": [
+        3,
+        4,
+        10
+      ],
+      "currentGap": 63,
+      "avgGap": 43.18,
+      "modeGap": 14,
+      "maxGap": 176,
+      "hitFrequency": 1.93,
+      "overdueFactor": 4.5,
+      "maxGapProximity": 35.8,
+      "consensusScore": 157.44,
+      "hits": 12
+    },
+    {
+      "seed": [
+        2,
+        9,
+        15
+      ],
+      "currentGap": 121,
+      "avgGap": 48.5,
+      "modeGap": 34,
+      "maxGap": 165,
+      "hitFrequency": 1.77,
+      "overdueFactor": 3.56,
+      "maxGapProximity": 73.3,
+      "consensusScore": 151.65,
+      "hits": 11
+    },
+    {
+      "seed": [
+        11,
+        17,
+        18
+      ],
+      "currentGap": 117,
+      "avgGap": 43.09,
+      "modeGap": 55,
+      "maxGap": 90,
+      "hitFrequency": 1.93,
+      "overdueFactor": 2.13,
+      "maxGapProximity": 130,
+      "consensusScore": 142.78,
+      "hits": 12
+    },
+    {
+      "seed": [
+        3,
+        4,
+        11
+      ],
+      "currentGap": 77,
+      "avgGap": 48.8,
+      "modeGap": 39,
+      "maxGap": 119,
+      "hitFrequency": 1.77,
+      "overdueFactor": 1.97,
+      "maxGapProximity": 64.7,
+      "consensusScore": 98.94,
+      "hits": 11
+    },
+    {
+      "seed": [
+        17,
+        18,
+        23
+      ],
+      "currentGap": 169,
+      "avgGap": 118,
+      "modeGap": 182,
+      "maxGap": 182,
+      "hitFrequency": 0.48,
+      "overdueFactor": 0.93,
+      "maxGapProximity": 92.9,
+      "consensusScore": 83.81,
+      "hits": 3
+    },
+    {
+      "seed": [
+        18,
+        24,
+        25
+      ],
+      "currentGap": 31,
+      "avgGap": 33.64,
+      "modeGap": 13,
+      "maxGap": 186,
+      "hitFrequency": 2.42,
+      "overdueFactor": 2.38,
+      "maxGapProximity": 16.7,
+      "consensusScore": 82.75,
+      "hits": 15
+    },
+    {
+      "seed": [
+        8,
+        16,
+        24
+      ],
+      "currentGap": 123,
+      "avgGap": 128,
+      "modeGap": 123,
+      "maxGap": 149,
+      "hitFrequency": 0.64,
+      "overdueFactor": 1,
+      "maxGapProximity": 82.6,
+      "consensusScore": 79.85,
+      "hits": 4
+    },
+    {
+      "seed": [
+        14,
+        21,
+        28
+      ],
+      "currentGap": 72,
+      "avgGap": 59.33,
+      "modeGap": 98,
+      "maxGap": 118,
+      "hitFrequency": 1.61,
+      "overdueFactor": 0.73,
+      "maxGapProximity": 61,
+      "consensusScore": 59.46,
+      "hits": 10
+    },
+    {
+      "seed": [
+        4,
+        10,
+        18
+      ],
+      "currentGap": 36,
+      "avgGap": 47.08,
+      "modeGap": 41,
+      "maxGap": 97,
+      "hitFrequency": 2.09,
+      "overdueFactor": 0.88,
+      "maxGapProximity": 37.1,
+      "consensusScore": 49.66,
+      "hits": 13
+    },
+    {
+      "seed": [
+        11,
+        17,
+        25
+      ],
+      "currentGap": 50,
+      "avgGap": 46.8,
+      "modeGap": 77,
+      "maxGap": 103,
+      "hitFrequency": 1.77,
+      "overdueFactor": 0.65,
+      "maxGapProximity": 48.5,
+      "consensusScore": 49.49,
+      "hits": 11
+    },
+    {
+      "seed": [
+        16,
+        18,
+        24
+      ],
+      "currentGap": 31,
+      "avgGap": 86,
+      "modeGap": 85,
+      "maxGap": 192,
+      "hitFrequency": 1.13,
+      "overdueFactor": 0.36,
+      "maxGapProximity": 16.1,
+      "consensusScore": 21.19,
+      "hits": 7
+    },
+    {
+      "seed": [
+        10,
+        18,
+        24
+      ],
+      "currentGap": 29,
+      "avgGap": 130,
+      "modeGap": 92,
+      "maxGap": 181,
+      "hitFrequency": 0.81,
+      "overdueFactor": 0.32,
+      "maxGapProximity": 16,
+      "consensusScore": 19.47,
+      "hits": 5
+    },
+    {
+      "seed": [
+        16,
+        24,
+        25
+      ],
+      "currentGap": 31,
+      "avgGap": 77.14,
+      "modeGap": 91,
+      "maxGap": 234,
+      "hitFrequency": 1.29,
+      "overdueFactor": 0.34,
+      "maxGapProximity": 13.2,
+      "consensusScore": 18.81,
+      "hits": 8
+    },
+    {
+      "seed": [
+        17,
+        18,
+        24
+      ],
+      "currentGap": 29,
+      "avgGap": 59.44,
+      "modeGap": 87,
+      "maxGap": 241,
+      "hitFrequency": 1.61,
+      "overdueFactor": 0.33,
+      "maxGapProximity": 12,
+      "consensusScore": 18.03,
+      "hits": 10
+    },
+    {
+      "seed": [
+        10,
+        17,
+        18
+      ],
+      "currentGap": 29,
+      "avgGap": 105,
+      "modeGap": 139,
+      "maxGap": 197,
+      "hitFrequency": 0.97,
+      "overdueFactor": 0.21,
+      "maxGapProximity": 14.7,
+      "consensusScore": 15.57,
+      "hits": 6
+    },
+    {
+      "seed": [
+        1,
+        2,
+        8
+      ],
+      "currentGap": 29,
+      "avgGap": 128.25,
+      "modeGap": 118,
+      "maxGap": 284,
+      "hitFrequency": 0.81,
+      "overdueFactor": 0.25,
+      "maxGapProximity": 10.2,
+      "consensusScore": 13.9,
+      "hits": 5
+    },
+    {
+      "seed": [
+        17,
+        23,
+        25
+      ],
+      "currentGap": 10,
+      "avgGap": 53.36,
+      "modeGap": 50,
+      "maxGap": 141,
+      "hitFrequency": 1.93,
+      "overdueFactor": 0.2,
+      "maxGapProximity": 7.1,
+      "consensusScore": 11.22,
+      "hits": 12
+    }
+  ]
+}

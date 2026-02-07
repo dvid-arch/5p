@@ -10,7 +10,8 @@ import {
     TrendingUp,
     BrainCircuit,
     LayoutDashboard,
-    Calculator
+    Calculator,
+    Grid3x3
 } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, path, active, collapsed }) => (
@@ -35,6 +36,8 @@ const Sidebar = ({ collapsed }) => {
         { icon: LayoutDashboard, label: 'Main Dashboard', path: '/' },
         { icon: Home, label: 'Institutional Analytics', path: '/adanal' },
         { icon: Search, label: 'Pattern Explorer', path: '/analysis' },
+        { icon: Grid3x3, label: 'Grid Predictor', path: '/grid-predictor' },
+        { icon: TrendingUp, label: 'Professional Chase', path: '/professional-chase' },
         { icon: Calculator, label: 'Algebraic Bonds', path: '/algebraic' },
         { icon: BrainCircuit, label: 'AI Engine', path: '/Canal' },
     ] : [

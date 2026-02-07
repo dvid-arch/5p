@@ -1,5 +1,6 @@
 import React from 'react';
-import { TrendingUp, Target, Zap, Shield, ChevronRight, Calculator, Activity } from 'lucide-react';
+import { TrendingUp, Target, Zap, Shield, ChevronRight, Calculator, Activity, Trophy } from 'lucide-react';
+import trioData from '../../constant/advanced_combination_analysis.json';
 
 const PredictionTab = ({ analysis }) => {
     const [activeStrategy, setActiveStrategy] = React.useState('banker');
@@ -151,6 +152,60 @@ const PredictionTab = ({ analysis }) => {
                             <Zap className="text-amber-500" size={20} />
                             Top Individual Bankers
                         </h4>
+
+                        {/* Institutional Triple Targets (Top 4) */}
+                        {analysis.predictions.topTriples && analysis.predictions.topTriples.length > 0 && (
+                            <div className="bg-gradient-to-br from-indigo-950 to-slate-900 rounded-[2rem] p-6 border border-indigo-500/30 shadow-xl relative overflow-hidden mb-8">
+                                <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+                                <div className="relative z-10">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <div>
+                                            <h4 className="text-xl font-black text-white flex items-center gap-2">
+                                                <Trophy className="text-amber-400" size={24} />
+                                                Institutional Triple Targets
+                                            </h4>
+                                            <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-widest mt-0.5">
+                                                Win Heuristic: 2 hits in 10 weeks
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        {analysis.predictions.topTriples.map((triple, idx) => (
+                                            <div key={idx} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-4 hover:bg-white/10 transition-all group relative">
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div className="bg-indigo-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest">
+                                                        {triple.grade.split(' ')[0]}
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="text-[9px] font-black text-amber-400">{(triple.readiness).toFixed(1)}</div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-center gap-1.5 mb-4">
+                                                    {triple.seed.map(n => (
+                                                        <div key={n} className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition-all ${n === triple.hub ? 'bg-amber-400 text-slate-900 shadow-[0_0_15px_rgba(251,191,36,0.5)]' : 'bg-white/10 text-white border border-white/10 group-hover:border-white/20'}`}>
+                                                            {n}
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <div className="space-y-1.5">
+                                                    <div className="flex items-center justify-between text-[8px] font-bold">
+                                                        <span className="text-indigo-300">EST. WINDOW</span>
+                                                        <span className="text-white bg-indigo-500/40 px-1.5 py-0.5 rounded border border-indigo-400/20">{triple.expectedIn}</span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between text-[8px] font-bold">
+                                                        <span className="text-indigo-300">WIN RATE</span>
+                                                        <span className="text-emerald-400">{triple.winRate}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {predictions.ensemble?.slice(0, 10).map((pred, idx) => (
                                 <div key={pred.number} className="flex items-center justify-between bg-slate-50 rounded-2xl p-4 border border-transparent hover:border-blue-200 transition-all group">
@@ -315,13 +370,24 @@ const PredictionTab = ({ analysis }) => {
                                             ))}
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Success</div>
-                                            <div className="text-xs font-black text-indigo-600">{sc.successRate}</div>
+                                            <div className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">
+                                                {sc.stats.grade === 'Standard' ? 'Analysis Score' : sc.stats.grade.split(' ')[0]}
+                                            </div>
+                                            <div className="text-xs font-black text-indigo-600">
+                                                {sc.analysisScore > 0 ? sc.analysisScore.toFixed(2) : sc.stats.winRate}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center justify-between p-2 bg-indigo-50/50 rounded-xl border border-indigo-100/50">
+                                    <div className="flex items-center justify-between p-2 bg-indigo-50/50 rounded-xl border border-indigo-100/50 mb-2">
                                         <span className="text-[10px] font-bold text-indigo-700 uppercase">Target: Any 2 of 3</span>
-                                        <span className="text-[10px] font-black text-indigo-400">Path: {sc.type === 'multiplication' ? '×' : '+'}</span>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-[9px] font-black text-indigo-400 uppercase">{sc.stats.grade}</span>
+                                            <span className="text-[10px] font-black text-indigo-400">| {sc.type === 'multiplication' ? '×' : '+'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="px-2 py-1 bg-emerald-50 rounded-lg border border-emerald-100 flex justify-between items-center">
+                                        <span className="text-[8px] font-bold text-emerald-700 uppercase tracking-tighter">Strategic Window</span>
+                                        <span className="text-[9px] font-black text-emerald-800">{sc.successRate}</span>
                                     </div>
                                 </div>
                             ))}
@@ -334,6 +400,49 @@ const PredictionTab = ({ analysis }) => {
                                 <div className="text-[9px] font-black uppercase tracking-wider mb-0.5">Optimized Window</div>
                                 <div className="text-sm font-black">5 - 12 Week Chase</div>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Elite Trio Rankings - Institutional Anchors */}
+                    <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm relative overflow-hidden">
+                        <div className="absolute -right-4 -bottom-4 opacity-5 text-amber-500">
+                            <Trophy size={120} />
+                        </div>
+                        <h4 className="text-lg font-bold mb-6 flex items-center gap-2 text-gray-800">
+                            <Trophy className="text-amber-500" size={20} />
+                            Elite Trio Rankings
+                        </h4>
+                        <div className="space-y-3">
+                            {trioData.topCombinations?.slice(0, 10).map((trio, idx) => (
+                                <div
+                                    key={idx}
+                                    className="p-3 bg-slate-50 rounded-2xl border border-transparent hover:border-amber-200 transition-all group cursor-help"
+                                    title={`Avg Gap: ${trio.gapAnalysis.avgGap} weeks`}
+                                >
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex gap-1.5">
+                                            {trio.combination.map(num => (
+                                                <div key={num} className="w-8 h-8 bg-slate-900 text-white rounded-lg flex items-center justify-center text-[10px] font-black group-hover:bg-amber-500 transition-colors">
+                                                    {num}
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Score</div>
+                                            <div className="text-xs font-black text-amber-600">{trio.compositeScore}</div>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between px-2 py-1 bg-white rounded-lg border border-slate-100">
+                                        <span className="text-[8px] font-bold text-gray-400 uppercase">Consistency</span>
+                                        <span className="text-[9px] font-black text-emerald-600">{trio.gapAnalysis.consistency}%</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-xl">
+                            <p className="text-[9px] text-amber-800 leading-tight font-medium italic">
+                                * Institutional Anchors represent trios with the highest frequency-to-gap stability over {trioData.summary.dataDraws} draws.
+                            </p>
                         </div>
                     </div>
 

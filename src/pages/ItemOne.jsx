@@ -1,10 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
 import Grid from "../components/Grid"
 import { useState, useMemo } from "react";
-import { ArrowLeft, Copy, CheckCircle2, TrendingUp, AlertCircle, Zap, Target, Award, Activity, ChevronLeft, ChevronRight, History, RotateCw, Calculator } from "lucide-react";
+import { ArrowLeft, Copy, CheckCircle2, TrendingUp, AlertCircle, Zap, Target, Award, Activity, ChevronLeft, ChevronRight, Calculator, History, RotateCw, AlertTriangle } from "lucide-react";
 import { truestdata } from "../constant/data";
+import { getHubStats } from "../constant/HubRegistry";
 import { useLotteryAnalysis } from "../hooks/useLotteryAnalysis";
 import { detectAlgebraicBonds, detectIsolatedClusters, detectInverseClusters } from "./PatternUtils";
+import { findOptimalGridPortfolio, getSmart20Numbers, getBaselineTop20 } from "../utils/gridPredictor";
+import tripleSetAudit from "../constant/triple_set_historical_audit.json";
 
 function CopyButton({ text }) {
     const [copied, setCopied] = useState(false);
@@ -136,16 +139,18 @@ function ItemOne() {
         });
     }, [data, itemIndex]);
 
+
     const seedOrigins = useMemo(() => {
         const origins = detectInverseClusters(data);
         const idx = parseInt(itemIndex);
 
-        return origins.map(s => {
+        const processed = origins.map(s => {
+            const stats = getHubStats(s.type, s.middle);
+
             const jointHits = [];
             let foundDouble = false;
             let foundTriple = false;
 
-            // Search future draws (indices [idx-1...0]) for joint manifestations
             for (let fIdx = idx - 1; fIdx >= 0; fIdx--) {
                 const draw = truestdata[fIdx];
                 if (!draw) continue;
@@ -155,7 +160,6 @@ function ItemOne() {
                 const weeks = idx - fIdx;
 
                 if (count === 3 && !foundTriple) {
-                    // First Triple Hit found
                     jointHits.push({
                         nums: matches.sort((a, b) => a - b),
                         weeks,
@@ -163,11 +167,8 @@ function ItemOne() {
                         count: 3
                     });
                     foundTriple = true;
-                    // Note: A triple hit is ALSO a double hit. 
-                    // If we haven't found a double hit yet, this serves as both.
                     foundDouble = true;
                 } else if (count === 2 && !foundDouble) {
-                    // First Double Hit found
                     jointHits.push({
                         nums: matches.sort((a, b) => a - b),
                         weeks,
@@ -179,8 +180,32 @@ function ItemOne() {
 
                 if (foundDouble && foundTriple) break;
             }
-            return { ...s, jointHits };
+            return { ...s, jointHits, stats };
         });
+
+        // Sort by Grade Score and Win Rate
+        processed.sort((a, b) => {
+            const gradePriority = { "Elite Alpha": 4, "Premium Beta": 3, "Standard Gamma": 2, "Standard": 1 };
+            const gradeB = gradePriority[b.stats.grade] || 0;
+            const gradeA = gradePriority[a.stats.grade] || 0;
+            if (gradeB !== gradeA) return gradeB - gradeA;
+
+            const wrB = parseFloat(b.stats.winRate) || 0;
+            const wrA = parseFloat(a.stats.winRate) || 0;
+            return wrB - wrA;
+        });
+
+        const unique = [];
+        const seenSeeds = new Set();
+        processed.forEach(s => {
+            const seedKey = [...s.seed].sort((a, b) => a - b).join('-');
+            if (!seenSeeds.has(seedKey)) {
+                unique.push(s);
+                seenSeeds.add(seedKey);
+            }
+        });
+
+        return unique;
     }, [data, itemIndex]);
 
     const ringedNums = useMemo(() => {
@@ -205,6 +230,38 @@ function ItemOne() {
 
         return Array.from(ringMap.entries()).map(([n, color]) => ({ n, color }));
     }, [algebraicBonds, isolatedClusters]);
+
+    // --- GRID STRATEGY AUDIT (NEW) ---
+    const gridAudit = useMemo(() => {
+        if (!historicalData || historicalData.length < 13) return null;
+
+        // 1. Get Institutional Signals (Fast Hybrid for backtest speed)
+        // We use the same simplified 'Fast Hybrid' as the main backtester to be consistent
+        const baselineResult = getBaselineTop20(historicalData, 13);
+        const scoreMap = baselineResult.scoreMap;
+
+        // 2. Predict Grids using History
+        const portfolioPool = findOptimalGridPortfolio(historicalData, 5, 13, scoreMap);
+
+        // 3. Get Top 20 Candidates
+        const predicted20 = getSmart20Numbers(portfolioPool, scoreMap);
+
+        // 4. Calculate Hits against ACTUAL current data
+        const currentDrawSet = new Set(data);
+        const hits = predicted20.filter(n => currentDrawSet.has(n));
+
+        return {
+            predicted20,
+            hits,
+            gridCenters: portfolioPool.slice(0, 3).map(p => p.center),
+            score: hits.length,
+            success: hits.length >= 3
+        };
+    }, [historicalData, data]);
+
+    const tripleAudit = useMemo(() => {
+        return tripleSetAudit[itemIndex] || null;
+    }, [itemIndex]);
 
     return (
         <div className="max-w-6xl mx-auto space-y-8">
@@ -325,6 +382,7 @@ function ItemOne() {
                             <Zap size={20} className="text-yellow-300 fill-yellow-300" />
                             AI Prediction Insights
                         </h3>
+                        {/* ... existing AI content ... */}
                         <div className="space-y-4 relative">
                             <p className="text-indigo-100 text-sm leading-relaxed">
                                 Based on the {stats.historySize} weeks prior, the AI gave this result an overall match score of <span className="text-white font-bold">{stats.avgPredictionScore}%</span>.
@@ -360,6 +418,162 @@ function ItemOne() {
                             </div>
                         </div>
                     </div>
+
+                    {/* GRID STRATEGY AUDIT CARD (NEW) */}
+                    {gridAudit && (
+                        <div className="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-xl relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+                                <TrendingUp size={64} className="text-blue-400" />
+                            </div>
+                            <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                                <Target size={20} className="text-blue-400" />
+                                Grid Strategy Check
+                            </h3>
+
+                            <div className="flex items-center gap-6 mb-4">
+                                <div>
+                                    <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Hits Caught</div>
+                                    <div className="text-3xl font-black text-white">{gridAudit.score} <span className="text-base font-medium text-slate-500">/ 20</span></div>
+                                </div>
+                                <div className="h-8 w-px bg-slate-700"></div>
+                                <div>
+                                    <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Result</div>
+                                    <div className={`text-lg font-bold ${gridAudit.success ? 'text-green-400' : 'text-red-400'}`}>
+                                        {gridAudit.success ? 'Success' : 'Miss'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2 text-xs text-slate-400">
+                                    <span>Top Grids Used:</span>
+                                    {gridAudit.gridCenters.map(c => (
+                                        <span key={c} className="bg-slate-700 text-white px-2 py-0.5 rounded border border-slate-600 font-bold">#{c}</span>
+                                    ))}
+                                </div>
+
+                                <div className="flex flex-wrap gap-1.5">
+                                    {gridAudit.predicted20.map(n => {
+                                        const isHit = data.includes(n);
+                                        return (
+                                            <div key={n} className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 ${isHit
+                                                ? 'bg-green-500 text-white border-green-400 shadow-lg shadow-green-900/50'
+                                                : 'bg-slate-700 text-slate-400 border-slate-600'
+                                                }`}>
+                                                {n}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* TRIPLE SET AUDIT CARD (NEW) */}
+                    {tripleAudit && (() => {
+                        const maxProx = tripleAudit.primary.maxGapProximity;
+                        const isExhausted = maxProx >= 100;
+                        const isCritical = maxProx >= 90;
+
+                        return (
+                            <div className={`p-6 rounded-3xl text-white shadow-xl relative overflow-hidden group transition-all duration-500 ${isExhausted
+                                ? 'bg-gradient-to-br from-red-600 via-orange-600 to-amber-700 shadow-red-500/50 border-2 border-white/30 animate-pulse-subtle'
+                                : isCritical
+                                    ? 'bg-gradient-to-br from-orange-600 to-amber-700 shadow-orange-500/30 border border-white/20'
+                                    : 'bg-gradient-to-br from-amber-600 to-orange-700 shadow-orange-100'
+                                }`}>
+                                {/* Exhaustion Badge */}
+                                {(isExhausted || isCritical) && (
+                                    <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter flex items-center gap-1 z-10 ${isExhausted ? 'bg-white text-red-600 shadow-lg' : 'bg-amber-200 text-amber-900'
+                                        }`}>
+                                        <AlertTriangle size={12} />
+                                        {isExhausted ? 'Exhaustion Limit Hit' : 'Critical Exhaustion'}
+                                    </div>
+                                )}
+
+                                <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+                                    <History size={64} className="text-white" />
+                                </div>
+                                <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                                    <Target size={20} className={isExhausted ? 'text-white' : 'text-amber-200'} />
+                                    Institutional Triple Portfolio
+                                </h3>
+
+                                <div className="flex items-center gap-6 mb-6">
+                                    <div>
+                                        <div className="text-xs text-amber-200 font-bold uppercase tracking-wider opacity-80">Backtest Result (15w)</div>
+                                        <div className={`text-2xl font-black ${tripleAudit.audit.outcome === 'Hit' ? 'text-green-300' :
+                                            tripleAudit.audit.outcome === 'Pending' ? 'text-blue-200' :
+                                                isExhausted ? 'text-white underline decoration-wavy' : 'text-orange-200'
+                                            }`}>
+                                            {tripleAudit.audit.outcome === 'Hit' ? `HIT (Week +${tripleAudit.audit.weeksToHit})` : tripleAudit.audit.outcome}
+                                        </div>
+                                    </div>
+                                    <div className="h-8 w-px bg-white/20"></div>
+                                    <div>
+                                        <div className="text-xs text-amber-200 font-bold uppercase tracking-wider opacity-80">Consensus Score</div>
+                                        <div className={`text-2xl font-black ${isExhausted ? 'text-white' : 'text-white'}`}>{tripleAudit.primary.consensusScore}</div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6">
+                                    {tripleAudit.top4.slice(0, 3).map((candidate, cIdx) => {
+                                        const cMaxProx = candidate.maxGapProximity;
+                                        const cIsExhausted = cMaxProx >= 100;
+                                        const isPrimary = cIdx === 0;
+
+                                        return (
+                                            <div key={cIdx} className={`p-4 rounded-2xl border transition-all ${isPrimary ? 'bg-white/10 border-white/20' : 'bg-black/10 border-white/5 opacity-70 hover:opacity-100'
+                                                }`}>
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <div className="text-[10px] font-black text-amber-200 uppercase tracking-widest opacity-80">
+                                                        {isPrimary ? 'Primary Candidate' : `Portfolio Hedge #${cIdx + 1}`}
+                                                    </div>
+                                                    <div className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 border border-white/10">
+                                                        Score: {candidate.consensusScore}
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 gap-2 mb-3">
+                                                    {candidate.triples.map((triple, tIdx) => {
+                                                        const isFutureHit = tripleAudit.audit.outcome === 'Hit' &&
+                                                            tripleAudit.audit.weeksToHit <= 15 &&
+                                                            triple.every(num => truestdata[parseInt(itemIndex) - tripleAudit.audit.weeksToHit]?.includes(num));
+
+                                                        return (
+                                                            <div key={tIdx} className="flex gap-1.5 p-2 bg-black/20 rounded-xl border border-white/5">
+                                                                {triple.map(n => (
+                                                                    <div key={n} className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black shadow-sm ${isFutureHit ? 'bg-green-500 text-white border border-green-400 animate-pulse' : 'bg-white/10 text-white/80 border border-white/5'
+                                                                        }`}>
+                                                                        {n}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                <div className="grid grid-cols-3 gap-2 px-1">
+                                                    <div className="text-center border-r border-white/10">
+                                                        <div className="text-[8px] font-bold text-amber-200/60 uppercase">Mode Overdue</div>
+                                                        <div className="text-xs font-black">{candidate.overdueFactor}x</div>
+                                                    </div>
+                                                    <div className="text-center border-r border-white/10">
+                                                        <div className="text-[8px] font-bold text-amber-200/60 uppercase">Mode Gap</div>
+                                                        <div className="text-xs font-black">{candidate.modeGap}w</div>
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <div className="text-[8px] font-bold text-amber-200/60 uppercase">Max Prox</div>
+                                                        <div className={`text-xs font-black ${cIsExhausted ? 'text-white animate-pulse' : ''}`}>{cMaxProx}%</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        );
+                    })()}
 
                     {/* Historical Performance Card */}
                     {historicalAccuracy && (
@@ -523,7 +737,7 @@ function ItemOne() {
                                 <span className="font-bold text-indigo-600"> Seed Cluster</span> geometry.
                             </p>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                                 {seedOrigins.map((s, idx) => (
                                     <div key={idx} className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100 flex flex-col gap-3">
                                         <div className="flex justify-between items-center">
@@ -537,14 +751,21 @@ function ItemOne() {
                                                 </div>
                                                 <span className="text-[10px] font-black text-gray-400 uppercase">From Pair</span>
                                             </div>
-                                            <div className="px-2 py-0.5 bg-white rounded-lg border border-indigo-200 text-[10px] font-black text-indigo-600">
+                                            <div className="px-1.5 py-0.5 bg-white rounded-lg border border-indigo-200 text-[9px] font-black text-indigo-600 whitespace-nowrap">
                                                 {s.type === 'multiplication' ? '× PATH' : '+ PATH'}
                                             </div>
                                         </div>
 
                                         <div className="flex items-center gap-3">
-                                            <div className="flex-1 p-3 bg-white rounded-xl border border-indigo-50 shadow-sm">
-                                                <div className="text-[9px] font-black text-indigo-400 uppercase mb-2 tracking-widest">Seed Cluster Origin</div>
+                                            <div className="flex-1 p-3 bg-white rounded-xl border border-indigo-50 shadow-sm relative overflow-hidden">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">Seed Cluster Origin</div>
+                                                    <div className="flex flex-col items-end gap-1">
+                                                        <div className={`px-2 py-0.5 rounded-lg border text-[8px] font-black uppercase tracking-tighter bg-indigo-600 text-indigo-50 border-indigo-700`}>
+                                                            {s.stats.grade}: {s.stats.winRate}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex gap-1.5">
                                                         {s.seed.map(n => (
@@ -599,7 +820,9 @@ function ItemOne() {
                                                     ))}
                                                 </div>
                                             ) : (
-                                                <span className="text-[10px] font-black text-indigo-300 italic tracking-tighter">No joint manifestations found...</span>
+                                                <span className="text-[9px] font-bold text-indigo-300 italic tracking-tighter opacity-60">
+                                                    * No joint manifestations discovered in historical window.
+                                                </span>
                                             )}
                                         </div>
                                     </div>
@@ -760,7 +983,7 @@ function ItemOne() {
                 </div>
             </div>
         </div >
-    )
+    );
 }
 
 export default ItemOne;

@@ -1,0 +1,5166 @@
+{
+  "summary": {
+    "totalCombinations": 18424,
+    "combinationsFound": 18421,
+    "dataDraws": 620
+  },
+  "methodology": {
+    "compositeScore": "Frequency(40%) + Consistency(40%) + Pair Strength(20%)",
+    "consistency": "Based on gap standard deviation - lower variance = higher consistency",
+    "pairs": "Average frequency of the three 2-number pairs that make up the 3-number combo"
+  },
+  "topCombinations": [
+    {
+      "combination": [
+        3,
+        18,
+        25
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        526,
+        551
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          25
+        ],
+        "avgGap": "25.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            3,
+            18
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            3,
+            25
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            18,
+            25
+          ],
+          "count": 39,
+          "frequency": "6.29"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.32"
+    },
+    {
+      "combination": [
+        13,
+        21,
+        31
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        224,
+        383
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          159
+        ],
+        "avgGap": "159.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            13,
+            21
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            13,
+            31
+          ],
+          "count": 41,
+          "frequency": "6.61"
+        },
+        {
+          "pair": [
+            21,
+            31
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.31"
+    },
+    {
+      "combination": [
+        4,
+        44,
+        48
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        11,
+        171
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          160
+        ],
+        "avgGap": "160.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            4,
+            44
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            4,
+            48
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            44,
+            48
+          ],
+          "count": 40,
+          "frequency": "6.45"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.28"
+    },
+    {
+      "combination": [
+        13,
+        16,
+        31
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        308,
+        426
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          118
+        ],
+        "avgGap": "118.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            13,
+            16
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            13,
+            31
+          ],
+          "count": 41,
+          "frequency": "6.61"
+        },
+        {
+          "pair": [
+            16,
+            31
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.28"
+    },
+    {
+      "combination": [
+        19,
+        37,
+        47
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        22,
+        463
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          441
+        ],
+        "avgGap": "441.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            19,
+            37
+          ],
+          "count": 46,
+          "frequency": "7.42"
+        },
+        {
+          "pair": [
+            19,
+            47
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            37,
+            47
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.28"
+    },
+    {
+      "combination": [
+        1,
+        11,
+        18
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        58,
+        64
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          6
+        ],
+        "avgGap": "6.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            11
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            1,
+            18
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            11,
+            18
+          ],
+          "count": 41,
+          "frequency": "6.61"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.27"
+    },
+    {
+      "combination": [
+        8,
+        18,
+        40
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        245,
+        387
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          142
+        ],
+        "avgGap": "142.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            18
+          ],
+          "count": 41,
+          "frequency": "6.61"
+        },
+        {
+          "pair": [
+            8,
+            40
+          ],
+          "count": 26,
+          "frequency": "4.19"
+        },
+        {
+          "pair": [
+            18,
+            40
+          ],
+          "count": 38,
+          "frequency": "6.13"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.26"
+    },
+    {
+      "combination": [
+        3,
+        33,
+        46
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        21,
+        143
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          122
+        ],
+        "avgGap": "122.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            3,
+            33
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            3,
+            46
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            33,
+            46
+          ],
+          "count": 42,
+          "frequency": "6.77"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.25"
+    },
+    {
+      "combination": [
+        15,
+        23,
+        32
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        65,
+        301
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          236
+        ],
+        "avgGap": "236.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            15,
+            23
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        },
+        {
+          "pair": [
+            15,
+            32
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            23,
+            32
+          ],
+          "count": 41,
+          "frequency": "6.61"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.25"
+    },
+    {
+      "combination": [
+        7,
+        15,
+        23
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        65,
+        105
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          40
+        ],
+        "avgGap": "40.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            7,
+            15
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            7,
+            23
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            15,
+            23
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.24"
+    },
+    {
+      "combination": [
+        19,
+        23,
+        35
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        182,
+        340
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          158
+        ],
+        "avgGap": "158.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            19,
+            23
+          ],
+          "count": 41,
+          "frequency": "6.61"
+        },
+        {
+          "pair": [
+            19,
+            35
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            23,
+            35
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.22"
+    },
+    {
+      "combination": [
+        2,
+        45,
+        49
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        286,
+        433
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          147
+        ],
+        "avgGap": "147.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            2,
+            45
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            2,
+            49
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            45,
+            49
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.21"
+    },
+    {
+      "combination": [
+        1,
+        9,
+        12
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        312,
+        390
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          78
+        ],
+        "avgGap": "78.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            9
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            1,
+            12
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            9,
+            12
+          ],
+          "count": 40,
+          "frequency": "6.45"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.20"
+    },
+    {
+      "combination": [
+        13,
+        40,
+        43
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        65,
+        512
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          447
+        ],
+        "avgGap": "447.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            13,
+            40
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            13,
+            43
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            40,
+            43
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.19"
+    },
+    {
+      "combination": [
+        16,
+        41,
+        49
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        283,
+        361
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          78
+        ],
+        "avgGap": "78.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            16,
+            41
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            16,
+            49
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        },
+        {
+          "pair": [
+            41,
+            49
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.19"
+    },
+    {
+      "combination": [
+        3,
+        21,
+        38
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        347,
+        509
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          162
+        ],
+        "avgGap": "162.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            3,
+            21
+          ],
+          "count": 38,
+          "frequency": "6.13"
+        },
+        {
+          "pair": [
+            3,
+            38
+          ],
+          "count": 26,
+          "frequency": "4.19"
+        },
+        {
+          "pair": [
+            21,
+            38
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.18"
+    },
+    {
+      "combination": [
+        10,
+        17,
+        48
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        247,
+        471
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          224
+        ],
+        "avgGap": "224.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            10,
+            17
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            10,
+            48
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        },
+        {
+          "pair": [
+            17,
+            48
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.18"
+    },
+    {
+      "combination": [
+        1,
+        39,
+        44
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        517,
+        525
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          8
+        ],
+        "avgGap": "8.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            39
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            1,
+            44
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            39,
+            44
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.17"
+    },
+    {
+      "combination": [
+        5,
+        39,
+        40
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        151,
+        525
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          374
+        ],
+        "avgGap": "374.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            5,
+            39
+          ],
+          "count": 46,
+          "frequency": "7.42"
+        },
+        {
+          "pair": [
+            5,
+            40
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            39,
+            40
+          ],
+          "count": 26,
+          "frequency": "4.19"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.17"
+    },
+    {
+      "combination": [
+        16,
+        23,
+        31
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        467,
+        570
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          103
+        ],
+        "avgGap": "103.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            16,
+            23
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            16,
+            31
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            23,
+            31
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.17"
+    },
+    {
+      "combination": [
+        15,
+        18,
+        35
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        59,
+        527
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          468
+        ],
+        "avgGap": "468.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            15,
+            18
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            15,
+            35
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            18,
+            35
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.16"
+    },
+    {
+      "combination": [
+        15,
+        24,
+        45
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        199,
+        272
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          73
+        ],
+        "avgGap": "73.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            15,
+            24
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        },
+        {
+          "pair": [
+            15,
+            45
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        },
+        {
+          "pair": [
+            24,
+            45
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.16"
+    },
+    {
+      "combination": [
+        3,
+        16,
+        46
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        55,
+        537
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          482
+        ],
+        "avgGap": "482.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            3,
+            16
+          ],
+          "count": 40,
+          "frequency": "6.45"
+        },
+        {
+          "pair": [
+            3,
+            46
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            16,
+            46
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.15"
+    },
+    {
+      "combination": [
+        4,
+        28,
+        44
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        171,
+        477
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          306
+        ],
+        "avgGap": "306.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            4,
+            28
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        },
+        {
+          "pair": [
+            4,
+            44
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            28,
+            44
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.15"
+    },
+    {
+      "combination": [
+        12,
+        24,
+        44
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        510,
+        598
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          88
+        ],
+        "avgGap": "88.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            12,
+            24
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            12,
+            44
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            24,
+            44
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.15"
+    },
+    {
+      "combination": [
+        14,
+        37,
+        49
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        208,
+        373
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          165
+        ],
+        "avgGap": "165.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            14,
+            37
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            14,
+            49
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            37,
+            49
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.15"
+    },
+    {
+      "combination": [
+        21,
+        42,
+        43
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        91,
+        347
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          256
+        ],
+        "avgGap": "256.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            21,
+            42
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            21,
+            43
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            42,
+            43
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.15"
+    },
+    {
+      "combination": [
+        1,
+        7,
+        32
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        65,
+        154
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          89
+        ],
+        "avgGap": "89.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            7
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            1,
+            32
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            7,
+            32
+          ],
+          "count": 40,
+          "frequency": "6.45"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.14"
+    },
+    {
+      "combination": [
+        2,
+        35,
+        45
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        125,
+        286
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          161
+        ],
+        "avgGap": "161.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            2,
+            35
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        },
+        {
+          "pair": [
+            2,
+            45
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            35,
+            45
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.14"
+    },
+    {
+      "combination": [
+        24,
+        40,
+        41
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        121,
+        247
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          126
+        ],
+        "avgGap": "126.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            24,
+            40
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            24,
+            41
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            40,
+            41
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.14"
+    },
+    {
+      "combination": [
+        1,
+        27,
+        38
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        47,
+        410
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          363
+        ],
+        "avgGap": "363.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            27
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            1,
+            38
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            27,
+            38
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.13"
+    },
+    {
+      "combination": [
+        5,
+        43,
+        46
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        91,
+        468
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          377
+        ],
+        "avgGap": "377.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            5,
+            43
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            5,
+            46
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            43,
+            46
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.13"
+    },
+    {
+      "combination": [
+        6,
+        13,
+        37
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        170,
+        343
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          173
+        ],
+        "avgGap": "173.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            6,
+            13
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            6,
+            37
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            13,
+            37
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.13"
+    },
+    {
+      "combination": [
+        6,
+        25,
+        35
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        98,
+        490
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          392
+        ],
+        "avgGap": "392.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            6,
+            25
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        },
+        {
+          "pair": [
+            6,
+            35
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            25,
+            35
+          ],
+          "count": 38,
+          "frequency": "6.13"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.13"
+    },
+    {
+      "combination": [
+        6,
+        27,
+        49
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        251,
+        433
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          182
+        ],
+        "avgGap": "182.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            6,
+            27
+          ],
+          "count": 38,
+          "frequency": "6.13"
+        },
+        {
+          "pair": [
+            6,
+            49
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            27,
+            49
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.13"
+    },
+    {
+      "combination": [
+        8,
+        33,
+        35
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        97,
+        334
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          237
+        ],
+        "avgGap": "237.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            33
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            8,
+            35
+          ],
+          "count": 21,
+          "frequency": "3.39"
+        },
+        {
+          "pair": [
+            33,
+            35
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.13"
+    },
+    {
+      "combination": [
+        15,
+        38,
+        48
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        99,
+        382
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          283
+        ],
+        "avgGap": "283.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            15,
+            38
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            15,
+            48
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            38,
+            48
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.13"
+    },
+    {
+      "combination": [
+        28,
+        43,
+        44
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        399,
+        491
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          92
+        ],
+        "avgGap": "92.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            28,
+            43
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            28,
+            44
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            43,
+            44
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.13"
+    },
+    {
+      "combination": [
+        1,
+        3,
+        17
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        129,
+        330
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          201
+        ],
+        "avgGap": "201.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            3
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            1,
+            17
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            3,
+            17
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.12"
+    },
+    {
+      "combination": [
+        1,
+        33,
+        45
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        297,
+        299
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          2
+        ],
+        "avgGap": "2.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            33
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            1,
+            45
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            33,
+            45
+          ],
+          "count": 42,
+          "frequency": "6.77"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.12"
+    },
+    {
+      "combination": [
+        13,
+        37,
+        47
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        92,
+        222
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          130
+        ],
+        "avgGap": "130.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            13,
+            37
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            13,
+            47
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            37,
+            47
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.12"
+    },
+    {
+      "combination": [
+        16,
+        21,
+        31
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        416,
+        509
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          93
+        ],
+        "avgGap": "93.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            16,
+            21
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            16,
+            31
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            21,
+            31
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.12"
+    },
+    {
+      "combination": [
+        24,
+        32,
+        36
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        490,
+        552
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          62
+        ],
+        "avgGap": "62.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            24,
+            32
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            24,
+            36
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            32,
+            36
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.12"
+    },
+    {
+      "combination": [
+        24,
+        36,
+        43
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        193,
+        499
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          306
+        ],
+        "avgGap": "306.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            24,
+            36
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            24,
+            43
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            36,
+            43
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.12"
+    },
+    {
+      "combination": [
+        32,
+        37,
+        42
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        21,
+        139
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          118
+        ],
+        "avgGap": "118.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            32,
+            37
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        },
+        {
+          "pair": [
+            32,
+            42
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            37,
+            42
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.12"
+    },
+    {
+      "combination": [
+        3,
+        6,
+        38
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        62,
+        236
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          174
+        ],
+        "avgGap": "174.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            3,
+            6
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            3,
+            38
+          ],
+          "count": 26,
+          "frequency": "4.19"
+        },
+        {
+          "pair": [
+            6,
+            38
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.11"
+    },
+    {
+      "combination": [
+        6,
+        19,
+        35
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        95,
+        453
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          358
+        ],
+        "avgGap": "358.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            6,
+            19
+          ],
+          "count": 38,
+          "frequency": "6.13"
+        },
+        {
+          "pair": [
+            6,
+            35
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            19,
+            35
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.11"
+    },
+    {
+      "combination": [
+        5,
+        24,
+        48
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        130,
+        567
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          437
+        ],
+        "avgGap": "437.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            5,
+            24
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        },
+        {
+          "pair": [
+            5,
+            48
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            24,
+            48
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.10"
+    },
+    {
+      "combination": [
+        1,
+        17,
+        38
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        47,
+        416
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          369
+        ],
+        "avgGap": "369.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            17
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            1,
+            38
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            17,
+            38
+          ],
+          "count": 26,
+          "frequency": "4.19"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.09"
+    },
+    {
+      "combination": [
+        8,
+        27,
+        49
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        27,
+        433
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          406
+        ],
+        "avgGap": "406.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            27
+          ],
+          "count": 39,
+          "frequency": "6.29"
+        },
+        {
+          "pair": [
+            8,
+            49
+          ],
+          "count": 22,
+          "frequency": "3.55"
+        },
+        {
+          "pair": [
+            27,
+            49
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.09"
+    },
+    {
+      "combination": [
+        8,
+        28,
+        48
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        45,
+        229
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          184
+        ],
+        "avgGap": "184.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            28
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            8,
+            48
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            28,
+            48
+          ],
+          "count": 38,
+          "frequency": "6.13"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.09"
+    },
+    {
+      "combination": [
+        1,
+        33,
+        36
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        154,
+        297
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          143
+        ],
+        "avgGap": "143.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            33
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            1,
+            36
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            33,
+            36
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.08"
+    },
+    {
+      "combination": [
+        8,
+        32,
+        48
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        287,
+        532
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          245
+        ],
+        "avgGap": "245.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            32
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            8,
+            48
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            32,
+            48
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.08"
+    },
+    {
+      "combination": [
+        7,
+        8,
+        35
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        47,
+        97
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          50
+        ],
+        "avgGap": "50.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            7,
+            8
+          ],
+          "count": 38,
+          "frequency": "6.13"
+        },
+        {
+          "pair": [
+            7,
+            35
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            8,
+            35
+          ],
+          "count": 21,
+          "frequency": "3.39"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.07"
+    },
+    {
+      "combination": [
+        1,
+        14,
+        29
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        211,
+        395
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          184
+        ],
+        "avgGap": "184.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            14
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            1,
+            29
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            14,
+            29
+          ],
+          "count": 40,
+          "frequency": "6.45"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.06"
+    },
+    {
+      "combination": [
+        6,
+        38,
+        48
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        286,
+        292
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          6
+        ],
+        "avgGap": "6.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            6,
+            38
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            6,
+            48
+          ],
+          "count": 26,
+          "frequency": "4.19"
+        },
+        {
+          "pair": [
+            38,
+            48
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.06"
+    },
+    {
+      "combination": [
+        8,
+        10,
+        43
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        502,
+        545
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          43
+        ],
+        "avgGap": "43.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            10
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            8,
+            43
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            10,
+            43
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.06"
+    },
+    {
+      "combination": [
+        1,
+        19,
+        32
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        311,
+        333
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          22
+        ],
+        "avgGap": "22.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            19
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            1,
+            32
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            19,
+            32
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.05"
+    },
+    {
+      "combination": [
+        6,
+        14,
+        49
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        179,
+        348
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          169
+        ],
+        "avgGap": "169.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            6,
+            14
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            6,
+            49
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            14,
+            49
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.05"
+    },
+    {
+      "combination": [
+        10,
+        17,
+        43
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        272,
+        607
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          335
+        ],
+        "avgGap": "335.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            10,
+            17
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            10,
+            43
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            17,
+            43
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.05"
+    },
+    {
+      "combination": [
+        24,
+        35,
+        40
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        513,
+        594
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          81
+        ],
+        "avgGap": "81.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            24,
+            35
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            24,
+            40
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            35,
+            40
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.05"
+    },
+    {
+      "combination": [
+        1,
+        17,
+        44
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        94,
+        128
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          34
+        ],
+        "avgGap": "34.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            17
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            1,
+            44
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            17,
+            44
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.04"
+    },
+    {
+      "combination": [
+        1,
+        12,
+        14
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        390,
+        506
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          116
+        ],
+        "avgGap": "116.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            12
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            1,
+            14
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            12,
+            14
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.03"
+    },
+    {
+      "combination": [
+        24,
+        38,
+        40
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        187,
+        597
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          410
+        ],
+        "avgGap": "410.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            24,
+            38
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        },
+        {
+          "pair": [
+            24,
+            40
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            38,
+            40
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.03"
+    },
+    {
+      "combination": [
+        8,
+        40,
+        43
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        387,
+        512
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          125
+        ],
+        "avgGap": "125.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            40
+          ],
+          "count": 26,
+          "frequency": "4.19"
+        },
+        {
+          "pair": [
+            8,
+            43
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            40,
+            43
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.02"
+    },
+    {
+      "combination": [
+        16,
+        17,
+        35
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        354,
+        416
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          62
+        ],
+        "avgGap": "62.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            16,
+            17
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            16,
+            35
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            17,
+            35
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.02"
+    },
+    {
+      "combination": [
+        8,
+        48,
+        49
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        45,
+        119
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          74
+        ],
+        "avgGap": "74.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            48
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            8,
+            49
+          ],
+          "count": 22,
+          "frequency": "3.55"
+        },
+        {
+          "pair": [
+            48,
+            49
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.01"
+    },
+    {
+      "combination": [
+        10,
+        16,
+        47
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        180,
+        389
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          209
+        ],
+        "avgGap": "209.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            10,
+            16
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            10,
+            47
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            16,
+            47
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.01"
+    },
+    {
+      "combination": [
+        1,
+        6,
+        40
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        314,
+        375
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          61
+        ],
+        "avgGap": "61.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            6
+          ],
+          "count": 21,
+          "frequency": "3.39"
+        },
+        {
+          "pair": [
+            1,
+            40
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            6,
+            40
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.00"
+    },
+    {
+      "combination": [
+        1,
+        33,
+        42
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        181,
+        472
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          291
+        ],
+        "avgGap": "291.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            33
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            1,
+            42
+          ],
+          "count": 19,
+          "frequency": "3.06"
+        },
+        {
+          "pair": [
+            33,
+            42
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "41.00"
+    },
+    {
+      "combination": [
+        1,
+        3,
+        42
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        455,
+        528
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          73
+        ],
+        "avgGap": "73.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            3
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            1,
+            42
+          ],
+          "count": 19,
+          "frequency": "3.06"
+        },
+        {
+          "pair": [
+            3,
+            42
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "40.99"
+    },
+    {
+      "combination": [
+        1,
+        5,
+        49
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        135,
+        525
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          390
+        ],
+        "avgGap": "390.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            5
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            1,
+            49
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            5,
+            49
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "40.99"
+    },
+    {
+      "combination": [
+        1,
+        37,
+        42
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        91,
+        506
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          415
+        ],
+        "avgGap": "415.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            37
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        },
+        {
+          "pair": [
+            1,
+            42
+          ],
+          "count": 19,
+          "frequency": "3.06"
+        },
+        {
+          "pair": [
+            37,
+            42
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "40.96"
+    },
+    {
+      "combination": [
+        8,
+        16,
+        49
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        509,
+        608
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          99
+        ],
+        "avgGap": "99.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            16
+          ],
+          "count": 22,
+          "frequency": "3.55"
+        },
+        {
+          "pair": [
+            8,
+            49
+          ],
+          "count": 22,
+          "frequency": "3.55"
+        },
+        {
+          "pair": [
+            16,
+            49
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "40.94"
+    },
+    {
+      "combination": [
+        1,
+        6,
+        14
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        260,
+        535
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          275
+        ],
+        "avgGap": "275.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            6
+          ],
+          "count": 21,
+          "frequency": "3.39"
+        },
+        {
+          "pair": [
+            1,
+            14
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            6,
+            14
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "40.89"
+    },
+    {
+      "combination": [
+        1,
+        32,
+        42
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        177,
+        321
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          144
+        ],
+        "avgGap": "144.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            32
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            1,
+            42
+          ],
+          "count": 19,
+          "frequency": "3.06"
+        },
+        {
+          "pair": [
+            32,
+            42
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "40.89"
+    },
+    {
+      "combination": [
+        8,
+        16,
+        35
+      ],
+      "count": 2,
+      "frequency": "0.32",
+      "appearances": [
+        97,
+        329
+      ],
+      "gapAnalysis": {
+        "gapCount": 1,
+        "gaps": [
+          232
+        ],
+        "avgGap": "232.00",
+        "stdDeviation": "0.00",
+        "consistency": "100.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            8,
+            16
+          ],
+          "count": 22,
+          "frequency": "3.55"
+        },
+        {
+          "pair": [
+            8,
+            35
+          ],
+          "count": 21,
+          "frequency": "3.39"
+        },
+        {
+          "pair": [
+            16,
+            35
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        }
+      ],
+      "frequencyScore": "0.32",
+      "consistencyScore": 100,
+      "compositeScore": "40.84"
+    },
+    {
+      "combination": [
+        6,
+        10,
+        49
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        161,
+        298,
+        433
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          137,
+          135
+        ],
+        "avgGap": "136.00",
+        "stdDeviation": "1.00",
+        "consistency": "95.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            6,
+            10
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            6,
+            49
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            10,
+            49
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 95,
+      "compositeScore": "39.13"
+    },
+    {
+      "combination": [
+        6,
+        21,
+        31
+      ],
+      "count": 4,
+      "frequency": "0.65",
+      "appearances": [
+        200,
+        224,
+        245,
+        266
+      ],
+      "gapAnalysis": {
+        "gapCount": 3,
+        "gaps": [
+          24,
+          21,
+          21
+        ],
+        "avgGap": "22.00",
+        "stdDeviation": "1.41",
+        "consistency": "92.93"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            6,
+            21
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            6,
+            31
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            21,
+            31
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.65",
+      "consistencyScore": 92.93,
+      "compositeScore": "38.53"
+    },
+    {
+      "combination": [
+        15,
+        40,
+        42
+      ],
+      "count": 4,
+      "frequency": "0.65",
+      "appearances": [
+        91,
+        133,
+        175,
+        214
+      ],
+      "gapAnalysis": {
+        "gapCount": 3,
+        "gaps": [
+          42,
+          42,
+          39
+        ],
+        "avgGap": "41.00",
+        "stdDeviation": "1.41",
+        "consistency": "92.93"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            15,
+            40
+          ],
+          "count": 35,
+          "frequency": "5.65"
+        },
+        {
+          "pair": [
+            15,
+            42
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            40,
+            42
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.65",
+      "consistencyScore": 92.93,
+      "compositeScore": "38.52"
+    },
+    {
+      "combination": [
+        17,
+        38,
+        46
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        458,
+        527,
+        599
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          69,
+          72
+        ],
+        "avgGap": "70.50",
+        "stdDeviation": "1.50",
+        "consistency": "92.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            17,
+            38
+          ],
+          "count": 26,
+          "frequency": "4.19"
+        },
+        {
+          "pair": [
+            17,
+            46
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            38,
+            46
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 92.5,
+      "compositeScore": "38.16"
+    },
+    {
+      "combination": [
+        1,
+        42,
+        45
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        455,
+        493,
+        528
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          38,
+          35
+        ],
+        "avgGap": "36.50",
+        "stdDeviation": "1.50",
+        "consistency": "92.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            42
+          ],
+          "count": 19,
+          "frequency": "3.06"
+        },
+        {
+          "pair": [
+            1,
+            45
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            42,
+            45
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 92.5,
+      "compositeScore": "38.06"
+    },
+    {
+      "combination": [
+        2,
+        14,
+        49
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        243,
+        361,
+        483
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          118,
+          122
+        ],
+        "avgGap": "120.00",
+        "stdDeviation": "2.00",
+        "consistency": "90.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            2,
+            14
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            2,
+            49
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            14,
+            49
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 90,
+      "compositeScore": "37.24"
+    },
+    {
+      "combination": [
+        24,
+        28,
+        40
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        215,
+        305,
+        399
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          90,
+          94
+        ],
+        "avgGap": "92.00",
+        "stdDeviation": "2.00",
+        "consistency": "90.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            24,
+            28
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            24,
+            40
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            28,
+            40
+          ],
+          "count": 38,
+          "frequency": "6.13"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 90,
+      "compositeScore": "37.15"
+    },
+    {
+      "combination": [
+        3,
+        4,
+        37
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        62,
+        129,
+        201
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          67,
+          72
+        ],
+        "avgGap": "69.50",
+        "stdDeviation": "2.50",
+        "consistency": "87.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            3,
+            4
+          ],
+          "count": 39,
+          "frequency": "6.29"
+        },
+        {
+          "pair": [
+            3,
+            37
+          ],
+          "count": 39,
+          "frequency": "6.29"
+        },
+        {
+          "pair": [
+            4,
+            37
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 87.5,
+      "compositeScore": "36.39"
+    },
+    {
+      "combination": [
+        22,
+        24,
+        36
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        28,
+        221,
+        420
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          193,
+          199
+        ],
+        "avgGap": "196.00",
+        "stdDeviation": "3.00",
+        "consistency": "85.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            22,
+            24
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            22,
+            36
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        },
+        {
+          "pair": [
+            24,
+            36
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 85,
+      "compositeScore": "35.20"
+    },
+    {
+      "combination": [
+        10,
+        43,
+        47
+      ],
+      "count": 4,
+      "frequency": "0.65",
+      "appearances": [
+        188,
+        233,
+        272,
+        309
+      ],
+      "gapAnalysis": {
+        "gapCount": 3,
+        "gaps": [
+          45,
+          39,
+          37
+        ],
+        "avgGap": "40.33",
+        "stdDeviation": "3.40",
+        "consistency": "83.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            10,
+            43
+          ],
+          "count": 27,
+          "frequency": "4.35"
+        },
+        {
+          "pair": [
+            10,
+            47
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            43,
+            47
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        }
+      ],
+      "frequencyScore": "0.65",
+      "consistencyScore": 83,
+      "compositeScore": "34.41"
+    },
+    {
+      "combination": [
+        2,
+        8,
+        38
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        519,
+        567,
+        608
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          48,
+          41
+        ],
+        "avgGap": "44.50",
+        "stdDeviation": "3.50",
+        "consistency": "82.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            2,
+            8
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        },
+        {
+          "pair": [
+            2,
+            38
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            8,
+            38
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 82.5,
+      "compositeScore": "34.21"
+    },
+    {
+      "combination": [
+        1,
+        6,
+        33
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        167,
+        323,
+        486
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          156,
+          163
+        ],
+        "avgGap": "159.50",
+        "stdDeviation": "3.50",
+        "consistency": "82.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            6
+          ],
+          "count": 21,
+          "frequency": "3.39"
+        },
+        {
+          "pair": [
+            1,
+            33
+          ],
+          "count": 25,
+          "frequency": "4.03"
+        },
+        {
+          "pair": [
+            6,
+            33
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 82.5,
+      "compositeScore": "34.02"
+    },
+    {
+      "combination": [
+        16,
+        21,
+        46
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        32,
+        292,
+        544
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          260,
+          252
+        ],
+        "avgGap": "256.00",
+        "stdDeviation": "4.00",
+        "consistency": "80.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            16,
+            21
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            16,
+            46
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        },
+        {
+          "pair": [
+            21,
+            46
+          ],
+          "count": 38,
+          "frequency": "6.13"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 80,
+      "compositeScore": "33.22"
+    },
+    {
+      "combination": [
+        16,
+        28,
+        47
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        322,
+        399,
+        467
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          77,
+          68
+        ],
+        "avgGap": "72.50",
+        "stdDeviation": "4.50",
+        "consistency": "77.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            16,
+            28
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            16,
+            47
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            28,
+            47
+          ],
+          "count": 42,
+          "frequency": "6.77"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 77.5,
+      "compositeScore": "32.26"
+    },
+    {
+      "combination": [
+        16,
+        31,
+        47
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        106,
+        291,
+        467
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          185,
+          176
+        ],
+        "avgGap": "180.50",
+        "stdDeviation": "4.50",
+        "consistency": "77.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            16,
+            31
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            16,
+            47
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            31,
+            47
+          ],
+          "count": 43,
+          "frequency": "6.94"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 77.5,
+      "compositeScore": "32.24"
+    },
+    {
+      "combination": [
+        32,
+        35,
+        43
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        201,
+        311,
+        412
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          110,
+          101
+        ],
+        "avgGap": "105.50",
+        "stdDeviation": "4.50",
+        "consistency": "77.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            32,
+            35
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        },
+        {
+          "pair": [
+            32,
+            43
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            35,
+            43
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 77.5,
+      "compositeScore": "32.23"
+    },
+    {
+      "combination": [
+        17,
+        38,
+        48
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        2,
+        184,
+        357
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          182,
+          173
+        ],
+        "avgGap": "177.50",
+        "stdDeviation": "4.50",
+        "consistency": "77.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            17,
+            38
+          ],
+          "count": 26,
+          "frequency": "4.19"
+        },
+        {
+          "pair": [
+            17,
+            48
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        },
+        {
+          "pair": [
+            38,
+            48
+          ],
+          "count": 31,
+          "frequency": "5.00"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 77.5,
+      "compositeScore": "32.17"
+    },
+    {
+      "combination": [
+        4,
+        5,
+        36
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        393,
+        451,
+        497
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          58,
+          46
+        ],
+        "avgGap": "52.00",
+        "stdDeviation": "6.00",
+        "consistency": "70.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            4,
+            5
+          ],
+          "count": 37,
+          "frequency": "5.97"
+        },
+        {
+          "pair": [
+            4,
+            36
+          ],
+          "count": 36,
+          "frequency": "5.81"
+        },
+        {
+          "pair": [
+            5,
+            36
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 70,
+      "compositeScore": "29.33"
+    },
+    {
+      "combination": [
+        1,
+        8,
+        14
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        211,
+        260,
+        297
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          49,
+          37
+        ],
+        "avgGap": "43.00",
+        "stdDeviation": "6.00",
+        "consistency": "70.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            8
+          ],
+          "count": 29,
+          "frequency": "4.68"
+        },
+        {
+          "pair": [
+            1,
+            14
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            8,
+            14
+          ],
+          "count": 34,
+          "frequency": "5.48"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 70,
+      "compositeScore": "29.12"
+    },
+    {
+      "combination": [
+        15,
+        16,
+        47
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        359,
+        389,
+        407
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          30,
+          18
+        ],
+        "avgGap": "24.00",
+        "stdDeviation": "6.00",
+        "consistency": "70.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            15,
+            16
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            15,
+            47
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            16,
+            47
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 70,
+      "compositeScore": "29.12"
+    },
+    {
+      "combination": [
+        1,
+        30,
+        42
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        404,
+        472,
+        528
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          68,
+          56
+        ],
+        "avgGap": "62.00",
+        "stdDeviation": "6.00",
+        "consistency": "70.00"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            30
+          ],
+          "count": 32,
+          "frequency": "5.16"
+        },
+        {
+          "pair": [
+            1,
+            42
+          ],
+          "count": 19,
+          "frequency": "3.06"
+        },
+        {
+          "pair": [
+            30,
+            42
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 70,
+      "compositeScore": "29.06"
+    },
+    {
+      "combination": [
+        1,
+        32,
+        36
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        154,
+        333,
+        525
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          179,
+          192
+        ],
+        "avgGap": "185.50",
+        "stdDeviation": "6.50",
+        "consistency": "67.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            1,
+            32
+          ],
+          "count": 24,
+          "frequency": "3.87"
+        },
+        {
+          "pair": [
+            1,
+            36
+          ],
+          "count": 33,
+          "frequency": "5.32"
+        },
+        {
+          "pair": [
+            32,
+            36
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 67.5,
+      "compositeScore": "28.13"
+    },
+    {
+      "combination": [
+        16,
+        35,
+        42
+      ],
+      "count": 3,
+      "frequency": "0.48",
+      "appearances": [
+        298,
+        362,
+        413
+      ],
+      "gapAnalysis": {
+        "gapCount": 2,
+        "gaps": [
+          64,
+          51
+        ],
+        "avgGap": "57.50",
+        "stdDeviation": "6.50",
+        "consistency": "67.50"
+      },
+      "pairStats": [
+        {
+          "pair": [
+            16,
+            35
+          ],
+          "count": 23,
+          "frequency": "3.71"
+        },
+        {
+          "pair": [
+            16,
+            42
+          ],
+          "count": 30,
+          "frequency": "4.84"
+        },
+        {
+          "pair": [
+            35,
+            42
+          ],
+          "count": 28,
+          "frequency": "4.52"
+        }
+      ],
+      "frequencyScore": "0.48",
+      "consistencyScore": 67.5,
+      "compositeScore": "28.06"
+    }
+  ]
+}

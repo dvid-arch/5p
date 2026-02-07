@@ -1,8 +1,13 @@
-# React + Vite
+# 5P Lottery Engine - Institutional Analytics
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A high-performance lottery analysis dashboard focused on **Algebraic Seed Reconstruction** and **Institutional Trio Tracking**.
 
-Currently, two official plugins are available:
+## 📖 Key Documentation
+- **[Strategy Evolution](file:///c:/Users/derri/Desktop/codes/wingame/5p/STRATEGY_EVOLUTION.md)**: Roadmap of mathematical breakthroughs and strategy pivots.
+- **[Archive](file:///c:/Users/derri/Desktop/codes/wingame/5p/archive)**: Legacy documentation and research simulations.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Getting Started
+```bash
+npm install
+npm run dev
+```
